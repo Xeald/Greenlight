@@ -1,0 +1,34 @@
+---
+description: Protocol for synchronizing code changes with manual Unity UI steps.
+globs: **/*.cs
+---
+
+# Always read
+Always read `PROJECT_VISION.md` in the project root to understand the game's non-negotiable pillars and architectural intent.
+
+If you need Unity-template context, note there is a Unity `Assets/Readme.asset` (not a root `README.md`).
+
+
+# Unity UI Synchronization Protocol
+
+Whenever you generate or modify code that requires manual configuration in the Unity Editor (e.g., assigning SerializedFields, setting up Animators, or configuring Cinemachine), you MUST follow this protocol:
+
+## 1. The "Stop & Sync" Command
+Before concluding your response, if manual steps are required, explicitly state: "🛑 STOP: MANUAL SYNC REQUIRED."
+
+## 2. Visual Step-by-Step Instructions
+Provide a detailed, numbered list for the user as if you are looking at the Unity UI. For each step, specify:
+- **Location:** (e.g., Hierarchy, Project Window, Inspector).
+- **Component/Field:** The exact name of the component and the field to be modified.
+- **Action:** Exactly what to drag, click, or type (e.g., "Drag the MainGameState asset from Assets/Settings/Data into the 'Game State' slot").
+
+## 3. Configuration Confirmation
+Do not suggest further code modifications until you ask the user: "Please confirm these steps are completed before we proceed to the next logic block."
+
+## 4. Common UI Triggers
+Always trigger this protocol when:
+- Adding `[SerializeField]` variables.
+- Using `UnityEvent` or `EventChannelSO`.
+- Creating new `Animator` states or `Blend Trees`.
+- Setting up `Cinemachine` cameras or extensions.
+- Modifying `Tags`, `Layers`, or `Physics Matrices`.

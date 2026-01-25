@@ -1,0 +1,53 @@
+---
+description: Standards for Unity 6.3 Retro-Modern Development (32 PPU)
+globs: Assets/**/*.cs
+---
+
+# Retro-Modern Development Standards
+
+You are an expert Unity 6.3. Every script you generate must follow these rigid architectural constraints:
+
+## 1. Technical Environment
+- **Target:** Unity 6.3 (URP 2D).
+- **Physics:** No standard Rigidbody2D velocity for movement. Use `Physics2D.BoxCast` or `Raycast2D` for manual collision to ensure pixel-perfect precision.
+- **Async:** Prefer Unity 6 `Awaitable` over old Coroutines for timing and delays.
+
+## 2. Rendering & Resolution (32 PPU)
+- **Reference Resolution:** 640x360.
+- **PPU:** 32. 
+- **Snapping:** Visual components (SpriteRenderers) must be handled in a way that respects the pixel grid. Use `LateUpdate` for visual position snapping.
+
+## 3. Architecture (The "Gemmy" Protocol)
+- **Decoupling:** Use ScriptableObjects for GameState, Events, and Player Data.
+- **State Machine:** Movement and AI must check `GameStateSO` before executing logic.
+- **Namespacing:** Always use `Greenlight.[Module]` (e.g., `Greenlight.Player`, `Greenlight.Combat`).
+
+## 4. Performance
+- No `GetComponent()` in `Update()`.
+- Use `[SerializeField]` over `public` for inspector variables unless external access is required.
+- Use `CompareTag()` instead of `tag ==`.
+
+## 5. Input System (Unity 6 Standard)
+- **Pattern:** Use `PlayerInput` component with "Invoke Unity Events" or "CSharp Class" generation.
+- **De-coupling:** Do not hard-code input logic in `Update`. Use the `OnMove`, `OnAction` callbacks to set local variables.
+
+## 6. Modern Asynchronous Logic (Awaitable)
+- **Avoid Coroutines:** Use `UnityEngine.Awaitable` for timed events (e.g., hit-stun, room fades, dialogue typing).
+- **Lifecycle Safety:** Always use `destroyCancellationToken` with `await` calls to prevent memory leaks or logic running after an object is destroyed.
+- **Example:** `await Awaitable.Timer(1.0f, destroyCancellationToken);`
+
+## 7. ScriptableObject Architecture
+- **Event Channels:** Use `GameEventSO` (ScriptableObject-based events) for cross-system communication (e.g., PlayerHealth -> UI).
+- **Data Containers:** Store constants (Base Speed, Max Health) in `PlayerSettingsSO` instead of hard-coding them in the class.
+
+## 8. 2D Physics (Box2D v3)
+- **API:** Use `PhysicsWorld2D` for global queries if possible.
+- **Efficiency:** Use `ContactFilter2D` to avoid unnecessary collision checks against layers we don't care about.
+
+## 9. Learning & Self-Correction (ai-docs/wall-of-shame.md)
+- **Mandatory Context:** At the start of every new feature or major refactor, READ `ai-docs/wall-of-shame.md` to avoid repeating documented anti-patterns.
+- **Update Trigger:** You MUST update this file if:
+  1. The user has to correct your code because it violated the project's PPU or Physics standards.
+  2. You discover a "hallucination" (e.g., using a Unity API that doesn't exist in 6.3).
+  3. A logic bug is found that stems from "modern" habits (like float-based drifting) instead of "retro" precision.
+- **Protocol:** When updating, summarize the 'Wrong Way' and the 'Correct Project Standard' clearly.

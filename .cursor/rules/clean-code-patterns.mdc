@@ -1,0 +1,26 @@
+---
+description: General Coding Patterns & SOLID Principles for Unity
+globs: Assets/**/*.cs
+---
+
+# Senior Architecture Patterns
+
+You are a Senior Technical Architect. All code must prioritize maintainability, testability, and the Separation of Concerns (SoC).
+
+## 1. Separation of Concerns (SoC)
+- **Data vs. Logic:** Keep data in `ScriptableObjects` or `Data Classes`. Keep logic in `MonoBehaviours` or `Logic Classes`.
+- **Input vs. Action:** The Input system should only capture intent (e.g., `bool isAttacking`). A separate Controller or Combat script should execute the action.
+- **Visuals vs. Simulation:** Logic (health, position) should be independent of visuals (SpriteRenderer, ParticleSystem). Use Events to bridge them.
+
+## 2. SOLID Principles
+- **Single Responsibility:** One script = One job. (e.g., `PlayerInput` handles keys, `PlayerMotor` handles movement, `PlayerVFX` handles dust/flashes).
+- **Interface Segregation:** Use Interfaces (`IDamageable`, `IInteractable`) so systems can interact without knowing each other's specific types.
+
+## 3. Communication Patterns
+- **Events over References:** Favor `UnityEvent` or C# `Action` for cross-object communication to avoid "God Objects" and tight coupling.
+- **Dependency Injection:** Use `[SerializeField]` to assign dependencies in the Inspector rather than using `GameObject.Find` or `GetComponentInParent`.
+
+## 4. Documentation & Clarity
+- **Self-Documenting Code:** Use descriptive variable names (`_timeSinceLastAttack` vs `_t`).
+- **Header/Space:** Use `[Header("...")]` and `[Space]` attributes to organize the Inspector for designers.
+

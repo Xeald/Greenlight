@@ -1,0 +1,47 @@
+---
+description: Guardrails derived from PROJECT_VISION.md (non-negotiables + architectural intent)
+globs: Assets/**/*.cs
+---
+
+# Project Vision Guardrails (Greenlight)
+
+This file exists to keep implementation aligned with `PROJECT_VISION.md`. If a proposed change conflicts with these, **do not implement it**—ask for clarification or propose an alternative that stays within the pillars.
+
+## 1) Non-negotiable design constraints
+- **No procedural generation**: Do not introduce procgen for rooms/world structure/content placement. Handcrafted content only.
+- **No XP / no levels**: Do not add experience points, leveling, skill trees that imply grinding, or stat treadmills.
+- **No grinding loops**: Avoid designs that incentivize killing enemies for infinite progression. Enemy respawn should not be instantly exploitable.
+- **Progression via discovery + gadgets**: Player power comes from gadgets/tools, finite placed rewards (hearts), and player skill.
+- **Economy**: Enemies can drop **Luni** (currency) for merchants/upgrades; do not convert this into “XP by another name”.
+
+## 2) “A World That Remembers” requirements
+- **Global Game State is the source of truth**:
+  - Store world consequences as **flags** (bool/enum), e.g. `ForestShrine_Cleansed`, `Village_BurntDown`, `Gadget_Grapple_Acquired`.
+  - State must be **serializable** for saves and restore exactly on load.
+- **Event-driven updates**:
+  - When state changes, publish an event so dependent systems (dialogue, scene composition, music, UI) can react without tight coupling.
+
+## 3) Dynamic scene composition expectations
+- Prefer **variant-aware scene roots** (enable/disable variants, prefab swaps, sprite swaps) based on GameState flags.
+- Avoid duplicating entire scenes to represent world states; configure on `Awake`/`Start` using state queries.
+
+## 4) Dialogue + gadget system guidance (data-driven)
+- Prefer **data-driven dialogue** (ScriptableObjects or external data) with:
+  - Conditional branches keyed off GameState flags
+  - Priority + fallback dialogue
+  - Optional live refresh via events (no hard requirement to reload scenes)
+- Gadgets should be **data + behavior**:
+  - ScriptableObject definition for metadata (name/icon/desc)
+  - Modular behavior components/classes
+  - Acquisition updates GameState and triggers events
+
+## 5) Save system guardrails
+- Save should serialize **GameState + player-specific data** (inventory, gadgets, hearts, etc.).
+- Avoid saving per-scene object transforms as the primary mechanism; reconstruct from flags where possible.
+- Target is **platform-agnostic** (PC + Android) and should not rely on editor-only APIs.
+
+## 6) Player experience / platform expectations (implementation implications)
+- **Controller-first, keyboard parity**: Prefer input abstractions that support rebinds and don’t hard-code device-specific assumptions.
+- **Android is first-class**: Avoid tiny UI hit targets; keep UI scalable and touch-friendly where applicable.
+- **Minimal, readable HUD**: Don’t add noisy debug-style HUD elements to shipping UI; prefer clean, high-contrast, unobtrusive overlays.
+
