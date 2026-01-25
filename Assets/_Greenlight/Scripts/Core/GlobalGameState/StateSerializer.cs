@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using UnityEngine;
 
 namespace Greenlight.Core
@@ -10,15 +10,15 @@ namespace Greenlight.Core
     /// Handles serialization and deserialization of GameStateSO to JSON.
     /// Designed for cross-platform cloud saves (PC/Android).
     /// 
-    /// Uses System.Text.Json for modern, efficient serialization without external dependencies.
+    /// Uses Newtonsoft.Json for robust, cross-platform serialization in Unity.
     /// </summary>
     public static class StateSerializer
     {
-        private static readonly JsonSerializerOptions _jsonOptions = new()
+        private static readonly JsonSerializerSettings _jsonSettings = new()
         {
-            WriteIndented = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            Formatting = Formatting.Indented,
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            NullValueHandling = NullValueHandling.Ignore
         };
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Greenlight.Core
                     StringFlags = new Dictionary<string, string>(state.StringFlags)
                 };
 
-                return JsonSerializer.Serialize(saveData, _jsonOptions);
+                return JsonConvert.SerializeObject(saveData, _jsonSettings);
             }
             catch (Exception ex)
             {
@@ -77,7 +77,7 @@ namespace Greenlight.Core
 
             try
             {
-                var saveData = JsonSerializer.Deserialize<SaveData>(json, _jsonOptions);
+                var saveData = JsonConvert.DeserializeObject<SaveData>(json, _jsonSettings);
 
                 if (saveData == null)
                 {
@@ -154,7 +154,7 @@ namespace Greenlight.Core
                 StringFlags = new Dictionary<string, string>()
             };
 
-            return JsonSerializer.Serialize(saveData, _jsonOptions);
+            return JsonConvert.SerializeObject(saveData, _jsonSettings);
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace Greenlight.Core
 
             try
             {
-                var saveData = JsonSerializer.Deserialize<SaveData>(json, _jsonOptions);
+                var saveData = JsonConvert.DeserializeObject<SaveData>(json, _jsonSettings);
                 if (saveData != null)
                 {
                     version = saveData.Version;
@@ -187,7 +187,7 @@ namespace Greenlight.Core
     }
 
     /// <summary>
-    /// Internal data structure for save file serialization.
+    /// Internal data structure for save file serialization. 
     /// Flat structure optimized for cloud save diff/merge operations.
     /// </summary>
     [Serializable]
@@ -201,31 +201,31 @@ namespace Greenlight.Core
         /// <summary>
         /// Save format version for migration compatibility.
         /// </summary>
-        [JsonPropertyName("version")]
+        [JsonProperty("version")]
         public int Version { get; set; }
 
         /// <summary>
         /// UTC timestamp when save was created (ISO 8601 format).
         /// </summary>
-        [JsonPropertyName("timestamp")]
+        [JsonProperty("timestamp")]
         public string Timestamp { get; set; }
 
         /// <summary>
         /// All boolean world flags.
         /// </summary>
-        [JsonPropertyName("boolFlags")]
+        [JsonProperty("boolFlags")]
         public Dictionary<string, bool> BoolFlags { get; set; }
 
         /// <summary>
         /// All integer world flags.
         /// </summary>
-        [JsonPropertyName("intFlags")]
+        [JsonProperty("intFlags")]
         public Dictionary<string, int> IntFlags { get; set; }
 
         /// <summary>
         /// All string world flags.
         /// </summary>
-        [JsonPropertyName("stringFlags")]
+        [JsonProperty("stringFlags")]
         public Dictionary<string, string> StringFlags { get; set; }
     }
 }

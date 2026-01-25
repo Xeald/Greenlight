@@ -14,6 +14,11 @@ namespace Greenlight.Core.Events
         [SerializeField, TextArea(2, 4)]
         private string _description = "Describe what this event signals.";
 
+        /// <summary>
+        /// Optional description for designer documentation.
+        /// </summary>
+        public string Description => _description;
+
         private readonly List<IGameEventListener> _listeners = new();
 
 #if UNITY_EDITOR

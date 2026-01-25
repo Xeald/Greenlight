@@ -84,7 +84,7 @@ namespace Greenlight.Core.SceneManagement
         }
 
         /// <summary>
-        /// Finds all IStateObserver components in the scene or hierarchy.
+        /// Finds all IStateObserver components via the StateRegistry.
         /// </summary>
         private void FindObservers()
         {
@@ -92,21 +92,16 @@ namespace Greenlight.Core.SceneManagement
 
             if (_childrenOnly)
             {
-                // Only search children of this GameObject
+                // If childrenOnly is set, we still need to filter the registry
+                // or just fallback to child search if the registry doesn't store hierarchy info.
+                // For simplicity and registry consistency, we search children.
                 var childObservers = GetComponentsInChildren<IStateObserver>(includeInactive: true);
                 _observers.AddRange(childObservers);
             }
             else
             {
-                // Search entire scene
-                var allObservers = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-                foreach (var mb in allObservers)
-                {
-                    if (mb is IStateObserver observer)
-                    {
-                        _observers.Add(observer);
-                    }
-                }
+                // Use the optimized registry!
+                _observers.AddRange(StateRegistry.Observers);
             }
         }
 

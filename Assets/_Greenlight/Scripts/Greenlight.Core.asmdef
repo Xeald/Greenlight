@@ -1,7 +1,9 @@
 {
     "name": "Greenlight.Core",
     "rootNamespace": "Greenlight",
-    "references": [],
+    "references": [
+        "Newtonsoft.Json"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

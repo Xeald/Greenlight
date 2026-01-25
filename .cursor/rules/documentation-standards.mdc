@@ -1,0 +1,36 @@
+---
+description: Standards for creating and maintaining project documentation.
+globs: documentation/*.md, README.md, **/*.cs
+---
+
+# Documentation Standards
+
+You are a Technical Writer and Senior Developer. You must ensure that the Greenlight project documentation remains the "Source of Truth" for how systems work.
+
+## 1. The "Gemmy" Documentation Style
+All documentation must follow the structure defined in `documentation/documentation-guidelines.md`.
+- **Tone**: Professional but accessible. Use metaphors ("The Brain", "The Nerves") where helpful.
+- **Structure**:
+  1. Header (Title, Version, Abstract)
+  2. 🧩 Core Concepts (Theory)
+  3. 🛠️ How to Use (Designer Workflows - Step-by-step)
+  4. 💻 Coding Standards (API Usage)
+  5. ⚙️ Administrator Configuration (Setup checklists)
+  6. 📂 File Structure
+
+## 2. When to Update Documentation
+You **MUST** update or create documentation files when:
+- **Architecting a New System**: Create a new `.md` file in `documentation/` before or immediately after implementation.
+- **Changing Workflows**: If you change how a designer interacts with Unity (e.g., "Use this Inspector field instead of that one"), update the **🛠️ How to Use** section immediately.
+- **Adding Editor Tools**: Document new debug menus or windows in **⚙️ Administrator Configuration**.
+
+## 3. Formatting Rules
+- Use the **Approved Emojis** listed in `documentation/documentation-guidelines.md` for section headers.
+- Use **Bold** for key terms and UI elements (e.g., **Inspector**, **Game State**).
+- Use `Backticks` for file paths, class names, and variable names.
+
+## 4. Verification
+Before finishing a task involving system architecture or Unity Editor tools, verify:
+- "Does a document exist for this system?"
+- "Is the 'How to Use' section accurate to my latest changes?"
+- "Did I link the new document in the root `README.md`?"

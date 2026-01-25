@@ -10,14 +10,18 @@ namespace Greenlight.Core.SceneManagement
     /// Usage:
     /// 1. Add to a parent object or the object you want to control
     /// 2. Assign the Target (can be self or a child)
-    /// 3. Set FlagKey and choose ActiveWhenTrue or ActiveWhenFalse
+    /// 3. Assign a Flag asset or set a FlagKey manually
+    /// 4. Choose ActiveWhenTrue or ActiveWhenFalse
     /// </summary>
     [AddComponentMenu("Greenlight/Scene Management/Conditional Activator")]
     public class ConditionalActivator : StateResponder
     {
         [Header("Activation Configuration")]
-        [SerializeField, Tooltip("The specific flag key that controls activation.")]
-        private string _flagKey;
+        [SerializeField, Tooltip("Optional: Assign a flag asset to automatically set the key.")]
+        private WorldFlagDefinitionSO _flag;
+
+        [SerializeField, Tooltip("Manual flag key if no asset is assigned.")]
+        private string _manualFlagKey;
 
         [SerializeField, Tooltip("The GameObject to activate/deactivate. If null, uses this GameObject.")]
         private GameObject _target;
@@ -26,44 +30,26 @@ namespace Greenlight.Core.SceneManagement
         private bool _activeWhenTrue = true;
 
         /// <summary>
-        /// The flag key this activator responds to.
+        /// The effective flag key this activator responds to.
         /// </summary>
-        public string FlagKey
+        public string EffectiveFlagKey => _flag != null ? _flag.FlagKey : _manualFlagKey;
+
+        protected override void Awake()
         {
-            get => _flagKey;
-            set
+            SyncWatchedFlags();
+            base.Awake();
+        }
+
+        private void SyncWatchedFlags()
+        {
+            if (_flag != null)
             {
-                _flagKey = value;
-                _watchedFlagKeys = string.IsNullOrEmpty(value) ? null : new[] { value };
+                _watchedFlags = new[] { _flag };
             }
-        }
-
-        /// <summary>
-        /// The target GameObject to control. Defaults to this GameObject if null.
-        /// </summary>
-        public GameObject Target
-        {
-            get => _target != null ? _target : gameObject;
-            set => _target = value;
-        }
-
-        /// <summary>
-        /// If true, target activates when flag is true. If false, target activates when flag is false.
-        /// </summary>
-        public bool ActiveWhenTrue
-        {
-            get => _activeWhenTrue;
-            set => _activeWhenTrue = value;
-        }
-
-        protected override void OnEnable()
-        {
-            if (!string.IsNullOrEmpty(_flagKey))
+            else if (!string.IsNullOrEmpty(_manualFlagKey))
             {
-                _watchedFlagKeys = new[] { _flagKey };
+                _watchedFlagKeys = new[] { _manualFlagKey };
             }
-
-            base.OnEnable();
         }
 
         public override void OnStateQueried(GameStateSO state)
@@ -76,7 +62,7 @@ namespace Greenlight.Core.SceneManagement
         {
             base.OnFlagChanged(payload);
 
-            if (payload.FlagKey == _flagKey && payload.Type == FlagType.Bool)
+            if (payload.FlagKey == EffectiveFlagKey && payload.Type == FlagType.Bool)
             {
                 ApplyActivation(payload.BoolValue);
             }
@@ -87,10 +73,11 @@ namespace Greenlight.Core.SceneManagement
         /// </summary>
         private void ApplyActivation()
         {
-            if (_gameState == null || string.IsNullOrEmpty(_flagKey))
+            string key = EffectiveFlagKey;
+            if (_gameState == null || string.IsNullOrEmpty(key))
                 return;
 
-            bool flagValue = _gameState.GetBool(_flagKey);
+            bool flagValue = _gameState.GetBool(key);
             ApplyActivation(flagValue);
         }
 
@@ -100,7 +87,7 @@ namespace Greenlight.Core.SceneManagement
         private void ApplyActivation(bool flagValue)
         {
             bool shouldBeActive = _activeWhenTrue ? flagValue : !flagValue;
-            GameObject target = Target;
+            GameObject target = _target != null ? _target : gameObject;
 
             if (target != null)
             {
@@ -109,18 +96,16 @@ namespace Greenlight.Core.SceneManagement
                 if (_debugLog)
                 {
                     Debug.Log($"[ConditionalActivator] '{gameObject.name}' set target '{target.name}' " +
-                             $"active={shouldBeActive} (flag '{_flagKey}' = {flagValue})");
+                             $"active={shouldBeActive} (flag '{EffectiveFlagKey}' = {flagValue})");
                 }
             }
         }
 
 #if UNITY_EDITOR
-        private void OnValidate()
+        protected override void OnValidate()
         {
-            if (!string.IsNullOrEmpty(_flagKey))
-            {
-                _watchedFlagKeys = new[] { _flagKey };
-            }
+            SyncWatchedFlags();
+            base.OnValidate();
         }
 #endif
     }

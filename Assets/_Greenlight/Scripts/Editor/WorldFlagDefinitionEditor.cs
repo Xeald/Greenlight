@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using Greenlight.Core;
+using Greenlight.Core.Events;
 
 namespace Greenlight.Editor
 {
@@ -24,7 +25,7 @@ namespace Greenlight.Editor
         {
             serializedObject.Update();
 
-            DrawHeader();
+            DrawEditorHeader();
             DrawDefaultInspector();
 
             EditorGUILayout.Space(10);
@@ -33,7 +34,7 @@ namespace Greenlight.Editor
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void DrawHeader()
+        private void DrawEditorHeader()
         {
             EditorGUILayout.BeginHorizontal();
 
@@ -94,13 +95,13 @@ namespace Greenlight.Editor
             string value;
             switch (_target.FlagType)
             {
-                case Events.FlagType.Bool:
+                case FlagType.Bool:
                     value = state.GetBool(_target.FlagKey).ToString();
                     break;
-                case Events.FlagType.Int:
+                case FlagType.Int:
                     value = state.GetInt(_target.FlagKey).ToString();
                     break;
-                case Events.FlagType.String:
+                case FlagType.String:
                     value = $"\"{state.GetString(_target.FlagKey)}\"";
                     break;
                 default:

@@ -2,6 +2,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using Greenlight.Core.Events;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace Greenlight.Core
 {
     /// <summary>
@@ -15,7 +19,7 @@ namespace Greenlight.Core
     /// - Serializes to JSON for cross-platform cloud saves
     /// </summary>
     [CreateAssetMenu(fileName = "MasterGameState", menuName = "Greenlight/Core/Game State")]
-    public class GameStateSO : ScriptableObject
+    public class GameStateSO : ScriptableObject, ISerializationCallbackReceiver
     {
         [Header("Event Channel")]
         [SerializeField, Tooltip("Event raised whenever any flag changes. Listeners filter by flag key.")]
@@ -270,20 +274,43 @@ namespace Greenlight.Core
             foreach (var kvp in _stringFlags)
                 _debugStringFlags.Add(new FlagEntry<string> { Key = kvp.Key, Value = kvp.Value });
 
-            UnityEditor.EditorUtility.SetDirty(this);
+            EditorUtility.SetDirty(this);
 #endif
         }
 
         #endregion
 
-        #region Unity Lifecycle
+        #region Unity Lifecycle & Serialization
 
         private void OnEnable()
         {
-            // Initialize dictionaries if needed (ScriptableObjects persist between play sessions)
+            // Initialize dictionaries if needed
             _boolFlags ??= new Dictionary<string, bool>();
             _intFlags ??= new Dictionary<string, int>();
             _stringFlags ??= new Dictionary<string, string>();
+
+#if UNITY_EDITOR
+            // In the editor, we want to clear the state when exiting play mode
+            // to prevent "Play Mode State Pollution" where changes in Play Mode
+            // persist in the asset.
+            if (!Application.isPlaying)
+            {
+                ClearAll();
+            }
+#endif
+        }
+
+        public void OnBeforeSerialize()
+        {
+            // Optional: Ensure debug lists are synced before serialization
+            // SyncDebugView(); 
+        }
+
+        public void OnAfterDeserialize()
+        {
+            // After deserialization (e.g., when the asset is loaded), 
+            // we don't necessarily want to clear flags if they were set in edit mode,
+            // but for runtime state, we typically start fresh.
         }
 
         #endregion

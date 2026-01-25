@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using Greenlight.Core;
 using Greenlight.Core.Events;
+using Greenlight.Core.SceneManagement;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -40,7 +41,7 @@ namespace Greenlight.Editor
         {
             serializedObject.Update();
 
-            DrawHeader();
+            DrawEditorHeader();
             DrawEventChannelField();
 
             EditorGUILayout.Space(10);
@@ -62,7 +63,7 @@ namespace Greenlight.Editor
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void DrawHeader()
+        private void DrawEditorHeader()
         {
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Global Game State", EditorStyles.boldLabel);
@@ -299,7 +300,7 @@ namespace Greenlight.Editor
                 // Scene Re-initialization
                 if (GUILayout.Button("Re-initialize All Scene Observers"))
                 {
-                    var initializers = Object.FindObjectsByType<SceneManagement.SceneInitializer>(
+                    var initializers = Object.FindObjectsByType<SceneInitializer>(
                         FindObjectsInactive.Exclude, FindObjectsSortMode.None);
 
                     foreach (var init in initializers)

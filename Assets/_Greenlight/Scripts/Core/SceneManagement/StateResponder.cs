@@ -1,5 +1,6 @@
 using UnityEngine;
 using Greenlight.Core.Events;
+using System.Linq;
 
 namespace Greenlight.Core.SceneManagement
 {
@@ -20,7 +21,10 @@ namespace Greenlight.Core.SceneManagement
         protected WorldFlagChangedEventSO _onFlagChanged;
 
         [Header("Flag Filtering")]
-        [SerializeField, Tooltip("Flag keys this responder watches. Leave empty to respond to all flags.")]
+        [SerializeField, Tooltip("Flag assets this responder watches. Keys will be extracted from these.")]
+        protected WorldFlagDefinitionSO[] _watchedFlags;
+
+        [SerializeField, Tooltip("Additional manual flag keys this responder watches.")]
         protected string[] _watchedFlagKeys;
 
         [Header("Debug")]
@@ -28,15 +32,7 @@ namespace Greenlight.Core.SceneManagement
         protected bool _debugLog;
 
         protected bool _isSubscribed;
-
-        /// <summary>
-        /// The flags this responder is watching.
-        /// </summary>
-        public string[] WatchedFlagKeys
-        {
-            get => _watchedFlagKeys;
-            set => _watchedFlagKeys = value;
-        }
+        private string[] _combinedFlagKeys;
 
         /// <summary>
         /// The Game State this responder queries.
@@ -47,14 +43,31 @@ namespace Greenlight.Core.SceneManagement
             set => _gameState = value;
         }
 
+        protected virtual void Awake()
+        {
+            RefreshWatchedKeys();
+        }
+
         protected virtual void OnEnable()
         {
+            StateRegistry.Register(this);
             SubscribeToEvents();
         }
 
         protected virtual void OnDisable()
         {
+            StateRegistry.Unregister(this);
             UnsubscribeFromEvents();
+        }
+
+        /// <summary>
+        /// Refreshes the internal list of watched flag keys from assets and manual entries.
+        /// </summary>
+        protected void RefreshWatchedKeys()
+        {
+            var keysFromAssets = _watchedFlags?.Select(f => f.FlagKey) ?? Enumerable.Empty<string>();
+            var manualKeys = _watchedFlagKeys ?? Enumerable.Empty<string>();
+            _combinedFlagKeys = keysFromAssets.Concat(manualKeys).Distinct().ToArray();
         }
 
         /// <summary>
@@ -103,14 +116,14 @@ namespace Greenlight.Core.SceneManagement
         public void OnEventRaised(FlagChangePayload payload)
         {
             // If no filter is set, respond to all
-            if (_watchedFlagKeys == null || _watchedFlagKeys.Length == 0)
+            if (_combinedFlagKeys == null || _combinedFlagKeys.Length == 0)
             {
                 OnFlagChanged(payload);
                 return;
             }
 
             // Check if this flag is in our watch list
-            foreach (string key in _watchedFlagKeys)
+            foreach (string key in _combinedFlagKeys)
             {
                 if (payload.FlagKey == key)
                 {
@@ -138,10 +151,10 @@ namespace Greenlight.Core.SceneManagement
         /// </summary>
         protected bool IsWatching(string flagKey)
         {
-            if (_watchedFlagKeys == null || _watchedFlagKeys.Length == 0)
+            if (_combinedFlagKeys == null || _combinedFlagKeys.Length == 0)
                 return true;
 
-            foreach (string key in _watchedFlagKeys)
+            foreach (string key in _combinedFlagKeys)
             {
                 if (key == flagKey)
                     return true;
@@ -172,5 +185,13 @@ namespace Greenlight.Core.SceneManagement
         {
             return _gameState != null ? _gameState.GetString(key, defaultValue) : defaultValue;
         }
+
+#if UNITY_EDITOR
+        protected virtual void OnValidate()
+        {
+            // In editor, refresh keys when inspector values change
+            RefreshWatchedKeys();
+        }
+#endif
     }
 }
