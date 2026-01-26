@@ -19,6 +19,8 @@ This document serves as a mandatory context for AI assistants working on the Gre
 | 2026-01-26 | Compilation | Putting `using UnityEditor;` in runtime scripts without guards. | Always wrap Editor-only namespaces/logic in `#if UNITY_EDITOR` to prevent build failures. |
 | 2026-01-26 | Physics/Visuals | Applying pixel snapping logic on the Rigidbody object. | Separate **Logic** (Parent) from **Visuals** (Child). Snap only the visual child to the grid to prevent physics jitter. |
 | 2026-01-26 | Physics/Layers | Putting the Player on the same layer as the Grapple target. | Use distinct layers (`Player`, `Grappleable`). Raycasts hitting the caster on Frame 0 break logic. |
+| 2026-01-26 | Serialization | Using `System.Text.Json` for save/load in Unity. | Use **Newtonsoft.Json** (`com.unity.nuget.newtonsoft-json` package). Unity's .NET implementation doesn't include `System.Text.Json` by default. |
+| 2026-01-26 | Async Movement | Using a **fixed `startPos`** in async movement loops: `Vector2.Lerp(startPos, target, t)` where `startPos` is calculated once. | Recalculate the current position each frame for **constant-speed movement**: `Vector2 currentPos = rb.position; Vector2 newPos = currentPos + direction * speed * Time.deltaTime;` Otherwise the object never moves! |
 
 ---
 

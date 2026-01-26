@@ -36,6 +36,11 @@ Gadgets follow a strict **Brain + Body** separation:
 - **Engine Workflow**: Physics/VFX handled by instantiated prefabs with direct scene access
 - **No Bloat**: Data assets are cheap; complex prefabs only instantiated when needed
 
+**Movement Control Pattern:**
+- Gadgets can lock player movement via `GadgetBehaviour.LocksMovement` property
+- `PlayerController` checks `GadgetUser.IsMovementLocked` and pauses `PlayerMotor`
+- This prevents input-based movement from conflicting with gadget-driven movement (e.g., grappling hook pull)
+
 ### 3. The Grappling Hook (First Verb)
 
 The grappling hook demonstrates the "Lock and Key" philosophy:
@@ -243,6 +248,45 @@ pos.x = Mathf.Round(pos.x * 32f) / 32f;
 pos.y = Mathf.Round(pos.y * 32f) / 32f;
 transform.position = pos;
 ```
+
+### 4. Creating Movement-Locking Gadgets
+
+```csharp
+public class MyTraversalGadget : GadgetBehaviour
+{
+    // Override to lock player movement during execution
+    public override bool LocksMovement => true;
+    
+    public override async void Execute(GadgetExecutionContext context)
+    {
+        if (IsExecuting) return;
+        IsExecuting = true; // This triggers movement lock
+        
+        try
+        {
+            // Directly control player position via context.UserRigidbody
+            while (stillMoving)
+            {
+                Vector2 currentPos = context.UserRigidbody.position;
+                Vector2 newPos = currentPos + direction * speed * Time.deltaTime;
+                context.UserRigidbody.MovePosition(newPos);
+                
+                await Awaitable.NextFrameAsync(destroyCancellationToken);
+            }
+        }
+        finally
+        {
+            IsExecuting = false; // This releases movement lock
+        }
+    }
+}
+```
+
+**Critical Pattern Notes:**
+- Set `IsExecuting = true` at start, `false` in `finally` block
+- Use `context.UserRigidbody.MovePosition()` for physics-safe movement
+- Calculate movement from **current position each frame**, not a fixed start position
+- Always use `destroyCancellationToken` with `await` to prevent leaks
 
 ---
 
