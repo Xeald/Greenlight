@@ -1,0 +1,17 @@
+{
+    "name": "Greenlight.Gadgets",
+    "rootNamespace": "Greenlight.Gadgets",
+    "references": [
+        "Greenlight.Core",
+        "Greenlight.Environment"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

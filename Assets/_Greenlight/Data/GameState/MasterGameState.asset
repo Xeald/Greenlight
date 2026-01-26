@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe27ba0ca623cbc418568299b29f4ba8, type: 3}
   m_Name: MasterGameState
   m_EditorClassIdentifier: Greenlight.Core::Greenlight.Core.GameStateSO
-  _onFlagChanged: {fileID: 0}
+  _onFlagChanged: {fileID: 11400000, guid: 82755f66e9db1d94daf95295b9902841, type: 2}
   _debugBoolFlags: []
   _debugIntFlags: []
   _debugStringFlags: []

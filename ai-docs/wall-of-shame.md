@@ -17,6 +17,8 @@ This document serves as a mandatory context for AI assistants working on the Gre
 | 2026-01-26 | Architecture | Using `FindObjectsByType` in `SceneInitializer` to find observers. | Use a **Static Registry** pattern where objects register themselves in `OnEnable`. Avoid $O(N)$ scene searches. |
 | 2026-01-26 | DX / Robustness | Relying on "Magic Strings" for flag keys (e.g., `string _flagKey`). | Use **Asset References** (`WorldFlagDefinitionSO`) in the Inspector to prevent typos, then extract the key at runtime. |
 | 2026-01-26 | Compilation | Putting `using UnityEditor;` in runtime scripts without guards. | Always wrap Editor-only namespaces/logic in `#if UNITY_EDITOR` to prevent build failures. |
+| 2026-01-26 | Physics/Visuals | Applying pixel snapping logic on the Rigidbody object. | Separate **Logic** (Parent) from **Visuals** (Child). Snap only the visual child to the grid to prevent physics jitter. |
+| 2026-01-26 | Physics/Layers | Putting the Player on the same layer as the Grapple target. | Use distinct layers (`Player`, `Grappleable`). Raycasts hitting the caster on Frame 0 break logic. |
 
 ---
 
@@ -26,6 +28,7 @@ This document serves as a mandatory context for AI assistants working on the Gre
 - **PPU (Pixels Per Unit):** Always use **32 PPU**. No sub-pixel drifting.
 - **Physics:** Ensure retro-precision. Avoid standard "slippery" modern physics defaults if they conflict with the tight feel of a retro game.
 - **API usage:** Verify all Unity APIs against version 6.3 documentation. Do not assume modern "shortcuts" exist if they weren't in 6.3.
+- **Raycasts:** Always require a **Collider2D** on the target. Scripts alone are invisible to physics.
 
 ### ScriptableObject Architecture
 - **State Pollution:** ScriptableObjects persist values in the Editor. Always reset runtime data in `OnEnable` (when `!Application.isPlaying`) to prevent test runs from dirtying assets.

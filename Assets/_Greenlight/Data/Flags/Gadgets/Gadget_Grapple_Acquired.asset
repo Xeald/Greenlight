@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ed809f2e5fcbc1c4ba9c82a4e1098d85, type: 3}
-  m_Name: Village_House1_Burnt
+  m_Name: Gadget_Grapple_Acquired
   m_EditorClassIdentifier: Greenlight.Core::Greenlight.Core.WorldFlagDefinitionSO
-  _flagKey: Village_House1_Burnt
+  _flagKey: 
   _category: 0
   _flagType: 0
   _defaultBool: 0

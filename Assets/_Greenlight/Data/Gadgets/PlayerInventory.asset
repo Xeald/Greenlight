@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0a9b03390f86a8458026be843bf6faa, type: 3}
+  m_Name: PlayerInventory
+  m_EditorClassIdentifier: Greenlight.Gadgets::Greenlight.Gadgets.InventorySO
+  _acquiredGadgets:
+  - {fileID: 11400000, guid: f8243febfd7eac14fbbd1183f12a9291, type: 2}
+  _activeIndex: 0
+  _onGadgetSwapped: {fileID: 11400000, guid: ee6dd82141f73404c8b188db5c8c9499, type: 2}
+  _onGadgetAcquired: {fileID: 11400000, guid: 547c81eecf84d614e9b3a1380a5eb095, type: 2}
