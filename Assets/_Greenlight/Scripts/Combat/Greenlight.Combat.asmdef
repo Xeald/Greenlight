@@ -1,11 +1,8 @@
 {
-    "name": "Greenlight.Player",
-    "rootNamespace": "Greenlight.Player",
+    "name": "Greenlight.Combat",
+    "rootNamespace": "Greenlight.Combat",
     "references": [
-        "Greenlight.Core",
-        "Greenlight.Combat",
-        "Greenlight.Gadgets",
-        "Unity.InputSystem"
+        "GUID:594699ff82e0c344fb8b2df5ca429134"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

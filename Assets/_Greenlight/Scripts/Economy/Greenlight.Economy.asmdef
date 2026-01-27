@@ -1,11 +1,9 @@
 {
-    "name": "Greenlight.Player",
-    "rootNamespace": "Greenlight.Player",
+    "name": "Greenlight.Economy",
+    "rootNamespace": "Greenlight.Economy",
     "references": [
         "Greenlight.Core",
-        "Greenlight.Combat",
-        "Greenlight.Gadgets",
-        "Unity.InputSystem"
+        "Greenlight.AI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

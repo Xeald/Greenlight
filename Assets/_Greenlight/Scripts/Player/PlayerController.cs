@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 using Greenlight.Core;
 using Greenlight.Core.SceneManagement;
 using Greenlight.Gadgets;
+using Greenlight.Combat;
 
 namespace Greenlight.Player
 {
@@ -29,6 +30,16 @@ namespace Greenlight.Player
 
         [SerializeField, Tooltip("Gadget user for tool execution.")]
         private GadgetUser _gadgetUser;
+
+        [Header("Combat Components")]
+        [SerializeField, Tooltip("Health component for damage handling.")]
+        private HealthComponent _healthComponent;
+
+        [SerializeField, Tooltip("Knockback receiver for impact physics.")]
+        private KnockbackReceiver _knockbackReceiver;
+
+        [SerializeField, Tooltip("Invincibility controller for iframes.")]
+        private InvincibilityController _invincibilityController;
 
         [Header("Input Lock")]
         [SerializeField, Tooltip("Flag key that locks all player input (e.g., during cutscenes).")]
@@ -57,12 +68,20 @@ namespace Greenlight.Player
             if (_motor == null) _motor = GetComponent<PlayerMotor>();
             if (_visuals == null) _visuals = GetComponent<PlayerVisuals>();
             if (_gadgetUser == null) _gadgetUser = GetComponent<GadgetUser>();
+
+            // Auto-assign combat components
+            if (_healthComponent == null) _healthComponent = GetComponent<HealthComponent>();
+            if (_knockbackReceiver == null) _knockbackReceiver = GetComponent<KnockbackReceiver>();
+            if (_invincibilityController == null) _invincibilityController = GetComponent<InvincibilityController>();
         }
 
         private void Update()
         {
-            // Determine if movement is locked (either by system or by active gadget)
-            bool movementLocked = _isInputLocked || (_gadgetUser != null && _gadgetUser.IsMovementLocked);
+            // Determine if movement is locked (system, gadget, or combat states)
+            bool gadgetLocking = _gadgetUser != null && _gadgetUser.IsMovementLocked;
+            bool combatLocking = (_knockbackReceiver != null && _knockbackReceiver.IsKnockedBack) ||
+                                 (_healthComponent != null && _healthComponent.IsDead);
+            bool movementLocked = _isInputLocked || gadgetLocking || combatLocking;
 
             // Process movement input
             if (!movementLocked && _motor != null)
@@ -78,16 +97,17 @@ namespace Greenlight.Player
             }
             else if (_motor != null)
             {
-                // Movement locked - stop motor and pause it if a gadget is locking it
-                bool gadgetLocking = _gadgetUser != null && _gadgetUser.IsMovementLocked;
+                // Movement locked - stop motor and pause appropriately
+                bool shouldPause = gadgetLocking || combatLocking;
                 
-                if (_debugLog && gadgetLocking != _motor.Paused)
+                if (_debugLog && shouldPause != _motor.Paused)
                 {
-                    Debug.Log($"[PlayerController] Movement locked by gadget: {gadgetLocking}");
+                    string reason = gadgetLocking ? "gadget" : combatLocking ? "combat" : "system";
+                    Debug.Log($"[PlayerController] Movement locked by {reason}");
                 }
                 
                 _motor.Stop();
-                _motor.Paused = gadgetLocking;
+                _motor.Paused = shouldPause;
             }
         }
 
@@ -226,6 +246,11 @@ namespace Greenlight.Player
             if (_motor == null) _motor = GetComponent<PlayerMotor>();
             if (_visuals == null) _visuals = GetComponent<PlayerVisuals>();
             if (_gadgetUser == null) _gadgetUser = GetComponent<GadgetUser>();
+
+            // Auto-assign combat components
+            if (_healthComponent == null) _healthComponent = GetComponent<HealthComponent>();
+            if (_knockbackReceiver == null) _knockbackReceiver = GetComponent<KnockbackReceiver>();
+            if (_invincibilityController == null) _invincibilityController = GetComponent<InvincibilityController>();
         }
 #endif
     }

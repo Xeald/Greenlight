@@ -1,11 +1,10 @@
 {
-    "name": "Greenlight.Player",
-    "rootNamespace": "Greenlight.Player",
+    "name": "Greenlight.AI",
+    "rootNamespace": "Greenlight.AI",
     "references": [
         "Greenlight.Core",
         "Greenlight.Combat",
-        "Greenlight.Gadgets",
-        "Unity.InputSystem"
+        "Greenlight.Gadgets"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

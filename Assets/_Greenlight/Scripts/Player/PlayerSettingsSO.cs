@@ -35,6 +35,16 @@ namespace Greenlight.Player
         [SerializeField, Range(0f, 1f), Tooltip("How quickly player decelerates when input stops (0=instant, 1=gradual).")]
         private float _deceleration = 0.2f;
 
+        [Header("Combat (Heart System)")]
+        [SerializeField, Tooltip("Starting maximum hearts for the player.")]
+        private int _maxHearts = 3;
+
+        [SerializeField, Range(0.1f, 3f), Tooltip("Invincibility frame duration after taking damage (seconds).")]
+        private float _iframeDuration = 1.0f;
+
+        [SerializeField, Tooltip("Knockback force when player is hit (pixels per second).")]
+        private float _knockbackForcePixels = 128f;
+
         /// <summary>
         /// Base movement speed in Unity units per second.
         /// Automatically converted from pixel speed using 32 PPU.
@@ -76,12 +86,36 @@ namespace Greenlight.Player
         /// </summary>
         public float Deceleration => _deceleration;
 
+        /// <summary>
+        /// Starting maximum hearts for the player.
+        /// </summary>
+        public int MaxHearts => _maxHearts;
+
+        /// <summary>
+        /// Invincibility frame duration after taking damage (seconds).
+        /// </summary>
+        public float IframeDuration => _iframeDuration;
+
+        /// <summary>
+        /// Knockback force when player is hit (Unity units per second).
+        /// </summary>
+        public float KnockbackForceUnits => _knockbackForcePixels / 32f;
+
+        /// <summary>
+        /// Raw knockback force in pixels per second for designer reference.
+        /// </summary>
+        public float KnockbackForcePixels => _knockbackForcePixels;
+
 #if UNITY_EDITOR
         private void OnValidate()
         {
             // Ensure speeds stay positive
             _moveSpeedPixelsPerSecond = Mathf.Max(1f, _moveSpeedPixelsPerSecond);
             _sprintMultiplier = Mathf.Max(1f, _sprintMultiplier);
+
+            // Ensure combat values stay positive
+            _maxHearts = Mathf.Max(1, _maxHearts);
+            _knockbackForcePixels = Mathf.Max(1f, _knockbackForcePixels);
         }
 #endif
     }
