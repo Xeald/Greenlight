@@ -253,7 +253,7 @@ namespace Greenlight.Economy
 
             // Draw drop radius
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireCircle(transform.position, _dropTable.DropSpreadRadius);
+            UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.forward, _dropTable.DropSpreadRadius);
 
             // Draw drop info
             Vector3 labelPos = transform.position + Vector3.up * 1f;

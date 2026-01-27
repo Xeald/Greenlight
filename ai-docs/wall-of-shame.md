@@ -25,6 +25,10 @@ This document serves as a mandatory context for AI assistants working on the Gre
 | 2026-01-27 | UI Concurrency | Multiple overlapping UI feedback messages when players button-mash. | Use `CancellationTokenSource` to cancel previous async UI tasks before starting new ones. Prevent message display conflicts with proper task cancellation. |
 | 2026-01-27 | Legacy APIs | Using `FindObjectOfType<T>()` (Unity 2022 and earlier). | Use `FindFirstObjectByType<T>()` in Unity 6+. It's faster and more explicit about finding behavior. |
 | 2026-01-27 | Physics TimeScale | Using `Time.fixedDeltaTime` without considering timeScale implications for knockback. | Document timeScale behavior clearly. `Time.fixedDeltaTime` scales with timeScale (good for hitstop consistency). Use `Time.fixedUnscaledDeltaTime` only if effect should ignore timeScale. |
+| 2026-01-27 | File I/O | Editing tools showed changes were applied, but files weren't actually written to disk. Unity kept compiling old versions. | **Always verify changes on disk** using terminal commands or file inspection. Tool claims != actual file state. Use PowerShell `Get-Content` to verify critical changes. |
+| 2026-01-27 | Unity API | Using `Gizmos.DrawWireCircle()` for 2D circle drawing. | **This method doesn't exist.** Use `UnityEditor.Handles.DrawWireDisc(position, Vector3.forward, radius)` for 2D gizmo circles. Always verify Unity API existence. |
+| 2026-01-27 | Assembly Definitions | Adding `using Namespace;` directive without corresponding assembly reference in `.asmdef` file. | **BOTH are required**: 1) Add `using` directive in code, 2) Add assembly reference in `.asmdef` file (prefer GUID format). Missing either causes `CS0234` errors. |
+| 2026-01-27 | Architecture | Creating circular assembly dependencies (e.g., Economy references UI while UI references Economy). | **Use reflection or events for cross-boundary communication.** Assembly A can depend on B, OR B can depend on A, but NOT both. Use `System.Type.GetType()` and reflection to call across boundaries without compile-time dependencies. |
 
 ---
 
@@ -39,3 +43,10 @@ This document serves as a mandatory context for AI assistants working on the Gre
 ### ScriptableObject Architecture
 - **State Pollution:** ScriptableObjects persist values in the Editor. Always reset runtime data in `OnEnable` (when `!Application.isPlaying`) to prevent test runs from dirtying assets.
 - **References:** Prefer dragging Asset references (`.asset`) over typing String keys. It makes refactoring safer and prevents typos.
+
+### Assembly Definitions (.asmdef)
+- **Dual Requirement:** To use a type from another assembly, you need BOTH: 1) `using Namespace;` directive in the code, AND 2) Assembly reference in the `.asmdef` file.
+- **GUID vs String:** Prefer GUID-based assembly references over string names in `.asmdef` files. GUIDs are more robust and survive renames.
+- **Circular Dependencies:** Assembly dependencies must form a **Directed Acyclic Graph (DAG)**. If A depends on B, then B cannot depend on A. Use reflection, events, or interfaces to communicate across boundaries.
+- **Common Structure:** `Core` → no dependencies, `Combat`/`AI`/`Economy` → depend on `Core`, `UI` → depends on everything it needs to display.
+- **Finding GUIDs:** Check the `.meta` file next to the `.asmdef` to find its GUID for referencing.

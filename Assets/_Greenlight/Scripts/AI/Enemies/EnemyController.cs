@@ -400,11 +400,11 @@ namespace Greenlight.AI
 
             // Draw detection range
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireCircle(transform.position, _definition.DetectionRange);
+            UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.forward, _definition.DetectionRange);
 
             // Draw attack range
             Gizmos.color = Color.red;
-            Gizmos.DrawWireCircle(transform.position, _definition.AttackRange);
+            UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.forward, _definition.AttackRange);
 
             // Draw current state info
             if (Application.isPlaying && _stateMachine != null)

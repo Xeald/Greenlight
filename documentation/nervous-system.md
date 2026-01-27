@@ -129,10 +129,19 @@ Assets/_Greenlight/
 │   ├── Core/
 │   │   ├── GlobalGameState/   # Logic for the "Brain"
 │   │   ├── Events/            # Logic for the "Nerves"
-│   │   └── SceneManagement/   # Logic for Scene Reactivity
+│   │   ├── SceneManagement/   # Logic for Scene Reactivity
+│   │   └── Greenlight.Core.asmdef  # Core assembly definition
 │   └── Editor/                # Custom Inspectors & Debug Tools
 └── Data/
     ├── GameState/             # The MasterGameState asset lives here
     ├── Flags/                 # Flag definitions live here
     └── Events/                # Event channels live here
 ```
+
+---
+
+## 🔗 Related Documentation
+
+- **[Assembly Architecture](assembly-architecture.md)**: Understanding code organization and module dependencies
+- **[Phase 2 Vocabulary](phase2-vocabulary.md)**: Player controller and gadget systems
+- **[Phase 3 Conversation](phase3-conversation.md)**: Combat, AI, and economy systems

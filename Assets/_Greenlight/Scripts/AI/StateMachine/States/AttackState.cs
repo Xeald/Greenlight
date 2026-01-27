@@ -1,4 +1,5 @@
 using UnityEngine;
+using Greenlight.Combat;
 
 namespace Greenlight.AI
 {

@@ -16,6 +16,8 @@ Greenlight is a top-down action-RPG built in Unity 6.3, fusing the exploration o
 ### Project Standards
 - **[Project Vision](PROJECT_VISION.md)**: The creative pillars and non-negotiable design principles.
 - **[Roadmap](Dev-plans/ROADMAP.md)**: Development phases and milestones.
+- **[Assembly Architecture](documentation/assembly-architecture.md)**: Code organization, module dependencies, and avoiding circular references.
+- **[Documentation Guidelines](documentation/documentation-guidelines.md)**: Standards for maintaining project documentation.
 
 ---
 

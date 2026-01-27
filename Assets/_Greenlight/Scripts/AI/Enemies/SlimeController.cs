@@ -449,9 +449,9 @@ namespace Greenlight.AI
 
             // Draw basic enemy info
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireCircle(transform.position, Definition.DetectionRange);
+            UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.forward, Definition.DetectionRange);
             Gizmos.color = Color.red;
-            Gizmos.DrawWireCircle(transform.position, Definition.AttackRange);
+            UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.forward, Definition.AttackRange);
 
             // Draw charge direction if charging
             if (Application.isPlaying && _isCharging)

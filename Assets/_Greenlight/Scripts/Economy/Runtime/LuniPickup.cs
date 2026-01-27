@@ -205,7 +205,7 @@ namespace Greenlight.Economy
             if (_rigidbody != null)
             {
                 _rigidbody.gravityScale = 0f;
-                _rigidbody.velocity = Vector2.zero;
+                _rigidbody.linearVelocity = Vector2.zero;
             }
 
             // Scale up slightly when magnetized
@@ -393,7 +393,7 @@ namespace Greenlight.Economy
                 return;
 
             // Apply bounce damping
-            _rigidbody.velocity *= _bounceDamping;
+            _rigidbody.linearVelocity *= _bounceDamping;
         }
 
 #if UNITY_EDITOR
@@ -410,11 +410,11 @@ namespace Greenlight.Economy
         {
             // Draw magnet range
             Gizmos.color = Color.cyan;
-            Gizmos.DrawWireCircle(transform.position, _magnetRange);
+            UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.forward, _magnetRange);
 
             // Draw collection radius
             Gizmos.color = Color.green;
-            Gizmos.DrawWireCircle(transform.position, _collectionRadius);
+            UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.forward, _collectionRadius);
 
             // Draw value label
             Vector3 labelPos = transform.position + Vector3.up * 0.8f;

@@ -176,10 +176,16 @@ namespace Greenlight.Economy
             // This would be handled by the MerchantPanel component
             if (_merchantUIPanel != null)
             {
-                var merchantPanel = _merchantUIPanel.GetComponent<MerchantPanel>();
-                if (merchantPanel != null)
+                // Use reflection to avoid circular assembly dependency (Economy -> UI)
+                var merchantPanelType = System.Type.GetType("Greenlight.UI.MerchantPanel, Greenlight.UI");
+                if (merchantPanelType != null)
                 {
-                    merchantPanel.InitializeMerchant(_merchantInventory, _gameState);
+                    var merchantPanelComponent = _merchantUIPanel.GetComponent(merchantPanelType);
+                    if (merchantPanelComponent != null)
+                    {
+                        var initMethod = merchantPanelType.GetMethod("InitializeMerchant");
+                        initMethod?.Invoke(merchantPanelComponent, new object[] { _merchantInventory, _gameState });
+                    }
                 }
             }
         }
@@ -382,9 +388,8 @@ namespace Greenlight.Economy
                 }
                 else if (trigger is CircleCollider2D circle)
                 {
-                    Gizmos.DrawWireCircle(
-                        transform.position + (Vector3)circle.offset,
-                        circle.radius
+                    UnityEditor.Handles.DrawWireDisc(
+                        transform.position + (Vector3)circle.offset, Vector3.forward, circle.radius
                     );
                 }
             }

@@ -97,5 +97,6 @@ Keep the `documentation/` folder organized:
 - `documentation/phase3-conversation.md` (Phase 3: Combat, AI & Economy)
 - `documentation/phase3-quick-reference.md` (Phase 3: Developer Quick Reference)
 - `documentation/camera-system.md` (Camera & Rendering Setup)
+- `documentation/assembly-architecture.md` (Assembly Definitions & Code Organization)
 - `documentation/documentation-guidelines.md` (This file)
 - `README.md` (Project Root - Entry Point)

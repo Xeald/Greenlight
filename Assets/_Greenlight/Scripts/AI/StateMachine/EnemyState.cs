@@ -26,7 +26,7 @@ namespace Greenlight.AI
         /// <summary>
         /// Time spent in this state (seconds).
         /// </summary>
-        protected float TimeInState { get; private set; }
+        public float TimeInState { get; protected set; }
 
         /// <summary>
         /// Initialize this state with references to its owner and state machine.
