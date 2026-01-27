@@ -9,6 +9,8 @@ Greenlight is a top-down action-RPG built in Unity 6.3, fusing the exploration o
 ### Core Systems
 - **[The Nervous System](documentation/nervous-system.md)**: The architectural backbone of Greenlight. Explains the Global Game State, Event Bus, and reactive scene composition.
 - **[The Vocabulary](documentation/phase2-vocabulary.md)**: Details the Player Controller, Modular Gadgets, and the Grappling Hook implementation.
+- **[The Conversation](documentation/phase3-conversation.md)**: Combat system, enemy AI, telegraph mechanics, and Luni economy. Implements "Combat as Conversation" pillar.
+  - **[Phase 3 Quick Reference](documentation/phase3-quick-reference.md)**: Developer cheat sheet with common code patterns and API references.
 - **[The Camera System](documentation/camera-system.md)**: Configuration guide for the 32 PPU Pixel Perfect Camera, Cinemachine 3, and 2D Renderer settings.
 
 ### Project Standards

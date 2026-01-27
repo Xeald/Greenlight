@@ -61,7 +61,7 @@ namespace Greenlight.Economy
             // Auto-assign GameState if not set
             if (_gameState == null)
             {
-                _gameState = FindObjectOfType<GameStateSO>();
+                _gameState = FindFirstObjectByType<GameStateSO>();
             }
         }
 

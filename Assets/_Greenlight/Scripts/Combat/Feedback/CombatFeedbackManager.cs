@@ -54,10 +54,10 @@ namespace Greenlight.Combat
         {
             // Auto-assign controllers
             if (_hitstopController == null)
-                _hitstopController = FindObjectOfType<HitstopController>();
+                _hitstopController = FindFirstObjectByType<HitstopController>();
 
             if (_screenShakeController == null)
-                _screenShakeController = FindObjectOfType<ScreenShakeController>();
+                _screenShakeController = FindFirstObjectByType<ScreenShakeController>();
         }
 
         private void OnEnable()
@@ -254,10 +254,10 @@ namespace Greenlight.Combat
         {
             // Auto-assign controllers if not set
             if (_hitstopController == null)
-                _hitstopController = FindObjectOfType<HitstopController>();
+                _hitstopController = FindFirstObjectByType<HitstopController>();
 
             if (_screenShakeController == null)
-                _screenShakeController = FindObjectOfType<ScreenShakeController>();
+                _screenShakeController = FindFirstObjectByType<ScreenShakeController>();
         }
 #endif
 
@@ -276,7 +276,7 @@ namespace Greenlight.Combat
                 get
                 {
                     if (_instance == null)
-                        _instance = FindObjectOfType<CombatFeedbackManager>();
+                        _instance = FindFirstObjectByType<CombatFeedbackManager>();
                     return _instance;
                 }
             }

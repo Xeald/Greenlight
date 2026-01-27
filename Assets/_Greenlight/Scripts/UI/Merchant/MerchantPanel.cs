@@ -73,6 +73,7 @@ namespace Greenlight.UI
         private GameStateSO _gameState;
         private List<ShopItemSlot> _activeItemSlots = new List<ShopItemSlot>();
         private string _luniCurrencyKey = "Player_Luni";
+        private System.Threading.CancellationTokenSource _feedbackMessageCTS;
 
         /// <summary>
         /// Current merchant being displayed.
@@ -323,8 +324,16 @@ namespace Greenlight.UI
             Debug.Log($"[MerchantPanel] Purchased '{item.ItemName}' for {item.Cost} Luni. Remaining: {newLuniAmount}");
         }
 
+        private void OnDestroy()
+        {
+            // Clean up cancellation token to prevent memory leaks
+            _feedbackMessageCTS?.Cancel();
+            _feedbackMessageCTS?.Dispose();
+        }
+
         /// <summary>
         /// Show a feedback message to the player.
+        /// Cancels any previous message to prevent concurrent display issues.
         /// </summary>
         /// <param name="message">Message to display</param>
         private async void ShowFeedbackMessage(string message)
@@ -332,22 +341,27 @@ namespace Greenlight.UI
             if (_feedbackMessageText == null || string.IsNullOrEmpty(message))
                 return;
 
+            // Cancel any previous feedback message
+            _feedbackMessageCTS?.Cancel();
+            _feedbackMessageCTS = new System.Threading.CancellationTokenSource();
+
             // Show message
             _feedbackMessageText.text = message;
             _feedbackMessageText.gameObject.SetActive(true);
 
-            // Wait for duration
+            // Wait for duration with proper cancellation handling
             try
             {
-                await Awaitable.WaitForSecondsAsync(_feedbackMessageDuration, destroyCancellationToken);
+                await Awaitable.WaitForSecondsAsync(_feedbackMessageDuration, _feedbackMessageCTS.Token);
             }
             catch (System.OperationCanceledException)
             {
+                // Message was cancelled by a newer message or object destruction
                 return;
             }
 
-            // Hide message
-            if (_feedbackMessageText != null)
+            // Hide message (only if this specific message completed)
+            if (_feedbackMessageText != null && !_feedbackMessageCTS.Token.IsCancellationRequested)
                 _feedbackMessageText.gameObject.SetActive(false);
         }
 

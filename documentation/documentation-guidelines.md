@@ -92,6 +92,10 @@ Before marking a task as "Complete," ask:
 
 Keep the `documentation/` folder organized:
 
-- `documentation/nervous-system.md` (Global State & Events)
+- `documentation/nervous-system.md` (Phase 1: Global State & Events)
+- `documentation/phase2-vocabulary.md` (Phase 2: Player Controller & Gadgets)  
+- `documentation/phase3-conversation.md` (Phase 3: Combat, AI & Economy)
+- `documentation/phase3-quick-reference.md` (Phase 3: Developer Quick Reference)
+- `documentation/camera-system.md` (Camera & Rendering Setup)
 - `documentation/documentation-guidelines.md` (This file)
 - `README.md` (Project Root - Entry Point)

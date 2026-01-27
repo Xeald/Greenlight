@@ -63,6 +63,9 @@ namespace Greenlight.Combat
             }
 
             // Apply knockback movement using MovePosition for pixel-perfect control
+            // Note: Uses Time.fixedDeltaTime (scaled with timeScale) for physics consistency.
+            // This ensures knockback respects hitstop (timeScale = 0) and other time effects.
+            // If you need knockback to ignore timeScale, use Time.fixedUnscaledDeltaTime instead.
             Vector2 currentPos = _rigidbody.position;
             Vector2 movement = _knockbackVelocity * Time.fixedDeltaTime;
             Vector2 newPos = currentPos + movement;

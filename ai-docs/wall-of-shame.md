@@ -21,6 +21,10 @@ This document serves as a mandatory context for AI assistants working on the Gre
 | 2026-01-26 | Physics/Layers | Putting the Player on the same layer as the Grapple target. | Use distinct layers (`Player`, `Grappleable`). Raycasts hitting the caster on Frame 0 break logic. |
 | 2026-01-26 | Serialization | Using `System.Text.Json` for save/load in Unity. | Use **Newtonsoft.Json** (`com.unity.nuget.newtonsoft-json` package). Unity's .NET implementation doesn't include `System.Text.Json` by default. |
 | 2026-01-26 | Async Movement | Using a **fixed `startPos`** in async movement loops: `Vector2.Lerp(startPos, target, t)` where `startPos` is calculated once. | Recalculate the current position each frame for **constant-speed movement**: `Vector2 currentPos = rb.position; Vector2 newPos = currentPos + direction * speed * Time.deltaTime;` Otherwise the object never moves! |
+| 2026-01-27 | Combat Sequencing | Applying knockback during hitstop (`Time.timeScale = 0`) causes "slippery" physics. | **Critical sequencing**: 1) Apply hitstop FIRST, 2) Apply knockback AFTER hitstop completes, 3) Screen shake concurrent with knockback. Use `await hitstopController.ApplyHitstopAsync()` for proper timing. |
+| 2026-01-27 | UI Concurrency | Multiple overlapping UI feedback messages when players button-mash. | Use `CancellationTokenSource` to cancel previous async UI tasks before starting new ones. Prevent message display conflicts with proper task cancellation. |
+| 2026-01-27 | Legacy APIs | Using `FindObjectOfType<T>()` (Unity 2022 and earlier). | Use `FindFirstObjectByType<T>()` in Unity 6+. It's faster and more explicit about finding behavior. |
+| 2026-01-27 | Physics TimeScale | Using `Time.fixedDeltaTime` without considering timeScale implications for knockback. | Document timeScale behavior clearly. `Time.fixedDeltaTime` scales with timeScale (good for hitstop consistency). Use `Time.fixedUnscaledDeltaTime` only if effect should ignore timeScale. |
 
 ---
 
