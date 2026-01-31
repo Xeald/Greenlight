@@ -1,4 +1,5 @@
 using UnityEngine;
+using Greenlight.Core.Physics;
 
 namespace Greenlight.Player
 {
@@ -14,7 +15,7 @@ namespace Greenlight.Player
     [RequireComponent(typeof(Rigidbody2D))]
     [RequireComponent(typeof(BoxCollider2D))]
     [AddComponentMenu("Greenlight/Player/Player Motor")]
-    public class PlayerMotor : MonoBehaviour
+    public class PlayerMotor : MonoBehaviour, ICollisionChecker
     {
         [Header("Settings")]
         [SerializeField, Tooltip("Movement settings asset.")]
@@ -125,11 +126,8 @@ namespace Greenlight.Player
                 }
             }
 
-            // Snap to pixel grid (32 PPU standard) for retro precision
-            finalPosition.x = Mathf.Round(finalPosition.x * 32f) / 32f;
-            finalPosition.y = Mathf.Round(finalPosition.y * 32f) / 32f;
-
             // Move using MovePosition (kinematic, no velocity drift)
+            // Note: Pixel snapping is handled by PlayerVisuals in LateUpdate for smooth physics
             _rb.MovePosition(finalPosition);
 
             if (_debugLog && IsMoving)
@@ -141,10 +139,12 @@ namespace Greenlight.Player
 
         /// <summary>
         /// Casts a box in the desired movement direction to check for obstacles.
+        /// Uses a skin width and normal check to allow escape from overlaps.
+        /// Public so other systems (knockback, gadgets) can respect player collisions.
         /// </summary>
         /// <param name="delta">The movement vector to check.</param>
-        /// <returns>True if a collision is detected.</returns>
-        private bool CheckCollision(Vector2 delta)
+        /// <returns>True if a collision is detected that blocks movement.</returns>
+        public bool CheckCollision(Vector2 delta)
         {
             if (_collider == null) return false;
 
@@ -155,16 +155,35 @@ namespace Greenlight.Player
             float distance = delta.magnitude;
             Vector2 direction = delta.normalized;
 
+            // Early exit for negligible movement
+            if (distance < 0.0001f) return false;
+
+            // Robust check: Cast from slightly behind (Skin Width) to detect surfaces
+            // even if we are already touching or slightly overlapping them.
+            // This allows us to distinguish between moving INTO a wall vs moving AWAY from it.
+            float skinWidth = 0.015f; // ~0.5 pixels at 32 PPU
+
             RaycastHit2D hit = Physics2D.BoxCast(
-                origin,
+                origin - direction * skinWidth,
                 size,
                 0f,
                 direction,
-                distance,
+                distance + skinWidth,
                 _settings.ObstacleLayers
             );
 
-            return hit.collider != null;
+            if (hit.collider != null)
+            {
+                // Only block if we are moving TOWARDS the surface (dot product < 0).
+                // If dot product > 0, we are moving away from the wall, so allow movement.
+                float dot = Vector2.Dot(direction, hit.normal);
+                if (dot < -0.01f)
+                {
+                    return true; // Blocked by wall
+                }
+            }
+
+            return false; // No collision or moving away from wall
         }
 
 #if UNITY_EDITOR

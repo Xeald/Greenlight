@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1400732069777707470}
   - component: {fileID: 3995426477753182965}
+  - component: {fileID: 6769637591452428401}
   m_Layer: 9
   m_Name: Visuals
   m_TagString: Untagged
@@ -91,6 +92,28 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!95 &6769637591452428401
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 507383202411341064}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 6a4f28e1c7a7adc4eb8551f4cc06faaf, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage:
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &2908200321956108068
 GameObject:
   m_ObjectHideFlags: 0
@@ -110,6 +133,7 @@ GameObject:
   - component: {fileID: 1812719453638293982}
   - component: {fileID: 8074798576412974411}
   - component: {fileID: 6827596115978169762}
+  - component: {fileID: 3286409694268939779}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -495,4 +519,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Greenlight.Combat::Greenlight.Combat.InvincibilityController
   _combatSettings: {fileID: 11400000, guid: 6bd8868a925ec334d9d297bfc45be82c, type: 2}
   _spriteRenderer: {fileID: 3995426477753182965}
+  _debugLog: 0
+--- !u!114 &3286409694268939779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2908200321956108068}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad3b36bb9713e5944b1e0ddd026fa3b0, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Greenlight.Player::Greenlight.Player.PlayerAnimationDriver
   _debugLog: 0
