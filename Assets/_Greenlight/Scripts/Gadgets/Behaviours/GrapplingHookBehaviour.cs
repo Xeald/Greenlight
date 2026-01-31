@@ -196,14 +196,25 @@ namespace Greenlight.Gadgets
                 Vector2 currentPos = context.UserRigidbody.position;
                 Vector2 direction = (targetPos - currentPos).normalized;
                 float step = PullSpeedUnits * Time.deltaTime;
-                
-                Vector2 newPos = currentPos + direction * step;
+                Vector2 movement = direction * step;
                 
                 // Don't overshoot
                 if (Vector2.Distance(currentPos, targetPos) < step)
                 {
-                    newPos = targetPos;
+                    movement = targetPos - currentPos;
                 }
+
+                // Respect collisions during the pull to prevent clipping through walls
+                if (context.UserRigidbody.TryGetComponent(out Greenlight.Core.Physics.ICollisionChecker collisionChecker))
+                {
+                    if (collisionChecker.CheckCollision(movement))
+                    {
+                        Debug.Log("[Grapple] Pull blocked by obstacle - stopping early.");
+                        break; // Stop pulling if we hit a wall
+                    }
+                }
+
+                Vector2 newPos = currentPos + movement;
 
                 Debug.Log($"[Grapple] Moving from {currentPos} to {newPos} (step: {step:F3})");
                 context.UserRigidbody.MovePosition(newPos);

@@ -16,5 +16,5 @@ MonoBehaviour:
   _debugBoolFlags: []
   _debugIntFlags:
   - Key: Player_Health
-    Value: 1
+    Value: 0
   _debugStringFlags: []

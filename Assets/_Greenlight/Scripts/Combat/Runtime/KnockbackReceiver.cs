@@ -68,6 +68,22 @@ namespace Greenlight.Combat
             // If you need knockback to ignore timeScale, use Time.fixedUnscaledDeltaTime instead.
             Vector2 currentPos = _rigidbody.position;
             Vector2 movement = _knockbackVelocity * Time.fixedDeltaTime;
+
+            // Check for collisions before moving (if ICollisionChecker is present)
+            // This prevents being knocked into walls or small obstacles
+            if (TryGetComponent(out Greenlight.Core.Physics.ICollisionChecker collisionChecker))
+            {
+                // Check X and Y separately to allow sliding along walls during knockback
+                if (Mathf.Abs(movement.x) > 0.0001f && collisionChecker.CheckCollision(new Vector2(movement.x, 0)))
+                {
+                    movement.x = 0;
+                }
+                if (Mathf.Abs(movement.y) > 0.0001f && collisionChecker.CheckCollision(new Vector2(0, movement.y)))
+                {
+                    movement.y = 0;
+                }
+            }
+
             Vector2 newPos = currentPos + movement;
 
             // Snap to pixel grid (32 PPU)
