@@ -19,6 +19,9 @@ MonoBehaviour:
     m_Bits: 0
   _obstacleLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4352
   _acceleration: 0.1
   _deceleration: 0.2
+  _maxHearts: 3
+  _iframeDuration: 1
+  _knockbackForcePixels: 128

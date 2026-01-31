@@ -14,5 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Greenlight.Core::Greenlight.Core.GameStateSO
   _onFlagChanged: {fileID: 11400000, guid: 82755f66e9db1d94daf95295b9902841, type: 2}
   _debugBoolFlags: []
-  _debugIntFlags: []
+  _debugIntFlags:
+  - Key: Player_Health
+    Value: 1
   _debugStringFlags: []

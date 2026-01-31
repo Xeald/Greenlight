@@ -97,7 +97,7 @@ namespace Greenlight.AI
         /// </summary>
         public bool IsAlive => _healthComponent != null && !_healthComponent.IsDead;
 
-        private void Awake()
+        protected virtual void Awake()
         {
             // Auto-assign components if not set
             AutoAssignComponents();
@@ -109,7 +109,7 @@ namespace Greenlight.AI
             ConfigureComponents();
         }
 
-        private void Start()
+        protected virtual void Start()
         {
             // Initialize health from definition
             InitializeHealth();

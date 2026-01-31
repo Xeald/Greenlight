@@ -411,6 +411,7 @@ screenShakeController.Shake(1.5f, 0.5f); // intensity, duration
 
 ## 📂 File Structure
 
+### 🏗️ Code & Data
 ```
 Assets/_Greenlight/
 ├── Scripts/
@@ -469,35 +470,38 @@ Assets/_Greenlight/
 │           └── PlayerWalletDisplay.cs # MVC View
 ├── Data/
 │   ├── Combat/
-│   │   └── DefaultCombatSettings.asset
+│   │   └── CombatSettings.asset
 │   ├── Enemies/
 │   │   ├── Definitions/
 │   │   │   ├── Slime.asset
 │   │   │   └── ShieldedGuardian.asset
-│   │   └── Behaviors/
-│   │       ├── SlimeBehavior.asset
-│   │       └── ShieldedBehavior.asset
-│   ├── Economy/
-│   │   ├── Items/
-│   │   │   ├── HeartContainer.asset
-│   │   │   ├── HealthPotion.asset
-│   │   │   └── GoldenGear.asset
-│   │   └── Merchants/
-│   │       └── GeneralStore.asset
+│   │   ├── Behaviours/
+│   │   │   └── DefaultEnemyBehaviour.asset
+│   │   └── Telegraphs/
+│   │       └── SlimeTelegraph.asset
 │   └── Events/
 │       └── Combat/
-│           ├── OnDamageDealt.asset
 │           ├── OnEntityDefeated.asset
-│           ├── OnPlayerHurt.asset
-│           └── OnHealthChanged.asset
+│           ├── OnEntityHurt.asset
+│           ├── OnHealthChanged.asset
+│           └── OnPlayerDefeated.asset
 └── Prefabs/
-    ├── Enemies/
-    │   ├── Slime.prefab
-    │   └── ShieldedGuardian.prefab
-    ├── Economy/
-    │   └── LuniPickup.prefab
-    └── UI/
-        └── MerchantPanel.prefab
+    └── Enemies/
+        ├── Slime.prefab
+        └── ShieldedGuardian.prefab
+```
+
+### 🎨 Art Assets
+```
+Assets/Art/Sprites/
+├── 🤺 Actors/
+│   └── 👹 Enemies/
+├── 🏺 Interactives/         (Objects linked to Global Game State)
+│   ├── Destructibles/
+│   └── QuestItems/
+└── 🖥️ UI/                   (HUD, Icons, and Menus)
+    ├── 📋 Icons/
+    └── 🖼️ HUD/
 ```
 
 ---

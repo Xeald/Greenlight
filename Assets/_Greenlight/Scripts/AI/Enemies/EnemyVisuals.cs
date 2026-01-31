@@ -1,4 +1,5 @@
 using UnityEngine;
+using Greenlight.Core.Animation;
 
 namespace Greenlight.AI
 {
@@ -35,20 +36,31 @@ namespace Greenlight.AI
         [SerializeField, Tooltip("Direction the sprite naturally faces (right = 1, left = -1).")]
         private int _naturalFacingDirection = 1;
 
-        [Header("Visual Effects")]
-        [SerializeField, Tooltip("Default tint color for temporary effects.")]
-        private Color _defaultTintColor = Color.white;
-
         // State
         private Vector2 _currentFacingDirection = Vector2.right;
+        private FacingCardinal _currentCardinal = FacingCardinal.Down;
         private Color _originalColor;
         private Color _originalWeaponColor;
         private bool _hasTemporaryTint;
         private bool _isFlickering;
+        private System.Collections.Generic.HashSet<int> _availableStateHashes;
 
         // Animation state hashes (for performance)
+        // Directional Idle states
+        private static readonly int IdleDownHash = Animator.StringToHash("IdleDown");
+        private static readonly int IdleUpHash = Animator.StringToHash("IdleUp");
+        private static readonly int IdleSideHash = Animator.StringToHash("IdleSide");
+        
+        // Directional Chase states
+        private static readonly int ChaseDownHash = Animator.StringToHash("ChaseDown");
+        private static readonly int ChaseUpHash = Animator.StringToHash("ChaseUp");
+        private static readonly int ChaseSideHash = Animator.StringToHash("ChaseSide");
+        
+        // Legacy single-direction states (preserved for backward compatibility)
         private static readonly int IdleHash = Animator.StringToHash("Idle");
         private static readonly int ChaseHash = Animator.StringToHash("Chase");
+        
+        // Non-directional states (preserved as single-direction)
         private static readonly int AttackHash = Animator.StringToHash("Attack");
         private static readonly int TelegraphHash = Animator.StringToHash("Telegraph");
         private static readonly int StunnedHash = Animator.StringToHash("Stunned");
@@ -62,6 +74,11 @@ namespace Greenlight.AI
         public Vector2 CurrentFacingDirection => _currentFacingDirection;
 
         /// <summary>
+        /// Current cardinal facing direction for animation system.
+        /// </summary>
+        public FacingCardinal CurrentCardinal => _currentCardinal;
+
+        /// <summary>
         /// Main sprite renderer.
         /// </summary>
         public SpriteRenderer MainSpriteRenderer => _mainSpriteRenderer;
@@ -72,8 +89,13 @@ namespace Greenlight.AI
             if (_mainSpriteRenderer == null)
                 _mainSpriteRenderer = GetComponent<SpriteRenderer>();
 
+            // Look for Animator in children first (preferred for 2D workflow), then on this object
             if (_animator == null)
-                _animator = GetComponent<Animator>();
+            {
+                _animator = GetComponentInChildren<Animator>();
+                if (_animator == null)
+                    _animator = GetComponent<Animator>();
+            }
 
             if (_visualTransform == null)
                 _visualTransform = transform;
@@ -88,24 +110,33 @@ namespace Greenlight.AI
             {
                 _originalWeaponColor = _weaponSpriteRenderer.color;
             }
+
+            // Initialize cardinal direction to default (Down)
+            var (defaultCardinal, _) = TopDownFacing.GetDefault();
+            _currentCardinal = defaultCardinal;
+
+            // Cache available animator states for performance
+            CacheAvailableStates();
         }
 
         #region Animation Control
 
         /// <summary>
-        /// Play idle animation.
+        /// Play idle animation based on current facing direction.
         /// </summary>
         public void PlayIdleAnimation()
         {
-            PlayAnimation(IdleHash);
+            int stateHash = GetDirectionalIdleHash(_currentCardinal);
+            PlayAnimationWithFallback(stateHash, IdleHash, "Idle");
         }
 
         /// <summary>
-        /// Play chase/movement animation.
+        /// Play chase/movement animation based on current facing direction.
         /// </summary>
         public void PlayChaseAnimation()
         {
-            PlayAnimation(ChaseHash);
+            int stateHash = GetDirectionalChaseHash(_currentCardinal);
+            PlayAnimationWithFallback(stateHash, ChaseHash, "Chase");
         }
 
         /// <summary>
@@ -169,12 +200,129 @@ namespace Greenlight.AI
         }
 
         /// <summary>
-        /// Check if currently playing idle animation.
+        /// Play animation with fallback to legacy state if directional state doesn't exist.
         /// </summary>
-        /// <returns>True if idle animation is active</returns>
+        /// <param name="preferredHash">Preferred directional state hash</param>
+        /// <param name="fallbackHash">Fallback legacy state hash</param>
+        /// <param name="stateName">State name for debugging</param>
+        private void PlayAnimationWithFallback(int preferredHash, int fallbackHash, string stateName)
+        {
+            if (_animator == null)
+                return;
+
+            // Try directional state first
+            if (HasAnimatorState(preferredHash))
+            {
+                _animator.Play(preferredHash);
+            }
+            // Fall back to legacy single-direction state
+            else if (HasAnimatorState(fallbackHash))
+            {
+                _animator.Play(fallbackHash);
+            }
+            else
+            {
+                Debug.LogWarning($"[EnemyVisuals] {name}: Neither directional nor legacy '{stateName}' " +
+                               "animation state found in Animator Controller.", this);
+            }
+        }
+
+        /// <summary>
+        /// Gets the appropriate directional idle state hash based on cardinal direction.
+        /// </summary>
+        /// <param name="cardinal">Cardinal facing direction</param>
+        /// <returns>Hash for the directional idle state</returns>
+        private int GetDirectionalIdleHash(FacingCardinal cardinal)
+        {
+            return cardinal switch
+            {
+                FacingCardinal.Down => IdleDownHash,
+                FacingCardinal.Up => IdleUpHash,
+                FacingCardinal.Side => IdleSideHash,
+                _ => IdleDownHash // Default fallback
+            };
+        }
+
+        /// <summary>
+        /// Gets the appropriate directional chase state hash based on cardinal direction.
+        /// </summary>
+        /// <param name="cardinal">Cardinal facing direction</param>
+        /// <returns>Hash for the directional chase state</returns>
+        private int GetDirectionalChaseHash(FacingCardinal cardinal)
+        {
+            return cardinal switch
+            {
+                FacingCardinal.Down => ChaseDownHash,
+                FacingCardinal.Up => ChaseUpHash,
+                FacingCardinal.Side => ChaseSideHash,
+                _ => ChaseDownHash // Default fallback
+            };
+        }
+
+        /// <summary>
+        /// Caches all available animator states for performance.
+        /// Called once in Awake to avoid repeated layer iteration.
+        /// </summary>
+        private void CacheAvailableStates()
+        {
+            _availableStateHashes = new System.Collections.Generic.HashSet<int>();
+            
+            if (_animator == null || _animator.runtimeAnimatorController == null)
+                return;
+
+            // Cache all state hashes we care about (directional + legacy + non-directional)
+            int[] statesToCheck = { 
+                IdleDownHash, IdleUpHash, IdleSideHash, 
+                ChaseDownHash, ChaseUpHash, ChaseSideHash,
+                IdleHash, ChaseHash,  // Legacy states
+                AttackHash, TelegraphHash, StunnedHash, DeathHash, RecoveryHash, AlertHash  // Non-directional
+            };
+            
+            foreach (int hash in statesToCheck)
+            {
+                for (int i = 0; i < _animator.layerCount; i++)
+                {
+                    if (_animator.HasState(i, hash))
+                    {
+                        _availableStateHashes.Add(hash);
+                        break; // Found in this layer, no need to check other layers
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks if the animator has a state with the given hash.
+        /// Uses cached state set for performance.
+        /// </summary>
+        /// <param name="stateHash">Hash of the state to check</param>
+        /// <returns>True if the state exists in the animator</returns>
+        private bool HasAnimatorState(int stateHash)
+        {
+            return _availableStateHashes?.Contains(stateHash) ?? false;
+        }
+
+        /// <summary>
+        /// Check if currently playing any idle animation (directional or legacy).
+        /// </summary>
+        /// <returns>True if any idle animation is active</returns>
         public bool IsPlayingIdleAnimation()
         {
-            return _animator != null && _animator.GetCurrentAnimatorStateInfo(0).shortNameHash == IdleHash;
+            if (_animator == null)
+                return false;
+
+            int currentStateHash = _animator.GetCurrentAnimatorStateInfo(0).shortNameHash;
+            
+            // Check directional idle states
+            if (currentStateHash == IdleDownHash || 
+                currentStateHash == IdleUpHash || 
+                currentStateHash == IdleSideHash)
+            {
+                return true;
+            }
+
+            // Check legacy idle state
+            return currentStateHash == IdleHash;
         }
 
         /// <summary>
@@ -221,11 +369,26 @@ namespace Greenlight.AI
 
             _currentFacingDirection = direction.normalized;
 
-            // Update sprite flip based on horizontal direction
+            // Get cardinal direction and flip decision from TopDownFacing helper
+            var (cardinal, flipX) = TopDownFacing.FromVector(_currentFacingDirection);
+            _currentCardinal = cardinal;
+
+            // Update sprite flip based on cardinal direction and helper decision
             if (_flipSpriteForDirection && _mainSpriteRenderer != null)
             {
-                // Determine if we should flip the sprite
-                bool shouldFlipX = (_currentFacingDirection.x < 0f) != (_naturalFacingDirection < 0);
+                bool shouldFlipX;
+                
+                if (_currentCardinal == FacingCardinal.Side)
+                {
+                    // Use TopDownFacing decision for consistent behavior
+                    shouldFlipX = flipX != (_naturalFacingDirection < 0);
+                }
+                else
+                {
+                    // Up/Down: never flip for clean vertical sprites
+                    shouldFlipX = false;
+                }
+
                 _mainSpriteRenderer.flipX = shouldFlipX;
 
                 // Also flip weapon sprite if present
@@ -395,8 +558,13 @@ namespace Greenlight.AI
             if (_mainSpriteRenderer == null)
                 _mainSpriteRenderer = GetComponent<SpriteRenderer>();
 
+            // Look for Animator in children first (preferred for 2D workflow), then on this object
             if (_animator == null)
-                _animator = GetComponent<Animator>();
+            {
+                _animator = GetComponentInChildren<Animator>();
+                if (_animator == null)
+                    _animator = GetComponent<Animator>();
+            }
 
             if (_visualTransform == null)
                 _visualTransform = transform;

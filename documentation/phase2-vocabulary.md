@@ -347,6 +347,7 @@ Since event assets must be created in Unity Editor:
 
 ## 📂 File Structure
 
+### 🏗️ Code & Data
 ```
 Assets/_Greenlight/
 ├── Scripts/
@@ -391,7 +392,17 @@ Assets/_Greenlight/
     ├── Player/
     │   └── Player.prefab
     └── Gadgets/
-        └── GrapplingHook.prefab          # Has GrapplingHookBehaviour + LineRenderer
+        └── GrapplingHookBehaviour.prefab # Has GrapplingHookBehaviour + LineRenderer
+```
+
+### 🎨 Art Assets
+```
+Assets/Art/Sprites/
+├── 🤺 Actors/
+│   └── 👤 Player/
+└── 🔧 Gadgets/
+    ├── Hookshot/
+    └── Lantern/
 ```
 
 ### Assembly References

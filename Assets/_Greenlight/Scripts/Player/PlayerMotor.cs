@@ -12,6 +12,7 @@ namespace Greenlight.Player
     /// - Separation of Concerns: Motor handles physics, not input
     /// </summary>
     [RequireComponent(typeof(Rigidbody2D))]
+    [RequireComponent(typeof(BoxCollider2D))]
     [AddComponentMenu("Greenlight/Player/Player Motor")]
     public class PlayerMotor : MonoBehaviour
     {
@@ -23,6 +24,7 @@ namespace Greenlight.Player
         [SerializeField] private bool _debugLog;
 
         private Rigidbody2D _rb;
+        private BoxCollider2D _collider;
         private Vector2 _currentVelocity;
         private Vector2 _targetVelocity;
 
@@ -45,6 +47,7 @@ namespace Greenlight.Player
         private void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
+            _collider = GetComponent<BoxCollider2D>();
             
             // Configure Rigidbody2D for retro-style movement
             _rb.bodyType = RigidbodyType2D.Kinematic;
@@ -98,11 +101,36 @@ namespace Greenlight.Player
                 _currentVelocity = Vector2.zero;
             }
 
-            // Calculate new position
-            Vector2 newPosition = _rb.position + _currentVelocity * Time.fixedDeltaTime;
+            // Calculate movement for this frame
+            Vector2 moveDelta = _currentVelocity * Time.fixedDeltaTime;
+
+            // Split movement into X and Y for sliding collision response
+            Vector2 finalPosition = _rb.position;
+
+            // --- Horizontal Move ---
+            if (Mathf.Abs(moveDelta.x) > 0.0001f)
+            {
+                if (!CheckCollision(new Vector2(moveDelta.x, 0)))
+                {
+                    finalPosition.x += moveDelta.x;
+                }
+            }
+
+            // --- Vertical Move ---
+            if (Mathf.Abs(moveDelta.y) > 0.0001f)
+            {
+                if (!CheckCollision(new Vector2(0, moveDelta.y)))
+                {
+                    finalPosition.y += moveDelta.y;
+                }
+            }
+
+            // Snap to pixel grid (32 PPU standard) for retro precision
+            finalPosition.x = Mathf.Round(finalPosition.x * 32f) / 32f;
+            finalPosition.y = Mathf.Round(finalPosition.y * 32f) / 32f;
 
             // Move using MovePosition (kinematic, no velocity drift)
-            _rb.MovePosition(newPosition);
+            _rb.MovePosition(finalPosition);
 
             if (_debugLog && IsMoving)
             {
@@ -111,14 +139,40 @@ namespace Greenlight.Player
             }
         }
 
+        /// <summary>
+        /// Casts a box in the desired movement direction to check for obstacles.
+        /// </summary>
+        /// <param name="delta">The movement vector to check.</param>
+        /// <returns>True if a collision is detected.</returns>
+        private bool CheckCollision(Vector2 delta)
+        {
+            if (_collider == null) return false;
+
+            // Use a slightly smaller box than the actual collider to prevent "snagging" 
+            // on parallel walls or floating point errors.
+            Vector2 size = _collider.size * 0.95f;
+            Vector2 origin = _rb.position + _collider.offset;
+            float distance = delta.magnitude;
+            Vector2 direction = delta.normalized;
+
+            RaycastHit2D hit = Physics2D.BoxCast(
+                origin,
+                size,
+                0f,
+                direction,
+                distance,
+                _settings.ObstacleLayers
+            );
+
+            return hit.collider != null;
+        }
+
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            // Auto-assign Rigidbody2D if missing
-            if (_rb == null)
-            {
-                _rb = GetComponent<Rigidbody2D>();
-            }
+            // Auto-assign components if missing
+            if (_rb == null) _rb = GetComponent<Rigidbody2D>();
+            if (_collider == null) _collider = GetComponent<BoxCollider2D>();
         }
 #endif
     }

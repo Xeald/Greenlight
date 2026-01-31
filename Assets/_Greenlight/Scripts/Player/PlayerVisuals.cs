@@ -1,4 +1,5 @@
 using UnityEngine;
+using Greenlight.Core.Animation;
 
 namespace Greenlight.Player
 {
@@ -32,12 +33,18 @@ namespace Greenlight.Player
         private const float PIXELS_PER_UNIT = 32f;
         private const float UNIT_PER_PIXEL = 1f / PIXELS_PER_UNIT;
 
-        private Vector2 _lastFacingDirection = Vector2.right;
+        private Vector2 _lastFacingDirection = Vector2.down;
+        private FacingCardinal _currentCardinal = FacingCardinal.Down;
 
         /// <summary>
         /// Last non-zero facing direction (for gadget aiming).
         /// </summary>
         public Vector2 FacingDirection => _lastFacingDirection;
+
+        /// <summary>
+        /// Current cardinal facing direction for animation system.
+        /// </summary>
+        public FacingCardinal CurrentCardinal => _currentCardinal;
 
         private void Awake()
         {
@@ -52,6 +59,10 @@ namespace Greenlight.Player
             {
                 _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             }
+
+            // Initialize cardinal direction to default (Down)
+            var (defaultCardinal, _) = TopDownFacing.GetDefault();
+            _currentCardinal = defaultCardinal;
         }
 
         /// <summary>
@@ -65,15 +76,22 @@ namespace Greenlight.Player
             {
                 _lastFacingDirection = moveDirection.normalized;
 
-                // Flip sprite based on horizontal direction
+                // Get cardinal direction and flip decision from TopDownFacing helper
+                var (cardinal, flipX) = TopDownFacing.FromVector(moveDirection);
+                _currentCardinal = cardinal;
+
+                // Apply sprite flip - only flip for Side directions when facing left
                 if (_flipSpriteOnDirection && _spriteRenderer != null)
                 {
-                    if (moveDirection.x < -0.01f)
+                    // Only flip horizontally for Side direction when facing left
+                    // Up/Down directions never flip (clean vertical sprites)
+                    if (_currentCardinal == FacingCardinal.Side)
                     {
-                        _spriteRenderer.flipX = true;
+                        _spriteRenderer.flipX = flipX;
                     }
-                    else if (moveDirection.x > 0.01f)
+                    else
                     {
+                        // Up/Down: always face right (no flip)
                         _spriteRenderer.flipX = false;
                     }
                 }

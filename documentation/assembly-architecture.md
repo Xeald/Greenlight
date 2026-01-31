@@ -36,7 +36,7 @@ Greenlight.Core
 
 | Assembly | Location | Purpose |
 | :--- | :--- | :--- |
-| `Greenlight.Core` | `Scripts/Core/` | Game state, events, utilities |
+| `Greenlight.Core` | `Scripts/` | Game state, events, utilities (Core Assembly) |
 | `Greenlight.Combat` | `Scripts/Combat/` | Damage, health, feedback |
 | `Greenlight.AI` | `Scripts/AI/` | Enemy behaviors, state machines |
 | `Greenlight.Gadgets` | `Scripts/Gadgets/` | Player abilities, gadget system |
@@ -44,6 +44,7 @@ Greenlight.Core
 | `Greenlight.Environment` | `Scripts/Environment/` | Interactive world objects |
 | `Greenlight.UI` | `Scripts/UI/` | HUD, menus, merchant panels |
 | `Greenlight.Player` | `Scripts/Player/` | Player controller, input |
+| `Greenlight.Editor` | `Scripts/Editor/` | Custom Inspectors & Debug Tools |
 
 ---
 
@@ -245,8 +246,11 @@ When adding a new `.asmdef`:
 
 ```
 Assets/_Greenlight/Scripts/
+├── Greenlight.Core.asmdef      # Parent assembly for Core modules
 ├── Core/
-│   └── Greenlight.Core.asmdef
+│   ├── Events/
+│   ├── GlobalGameState/
+│   └── SceneManagement/
 ├── Combat/
 │   ├── Interfaces/
 │   ├── Runtime/
@@ -258,6 +262,10 @@ Assets/_Greenlight/Scripts/
 │   ├── StateMachine/
 │   └── Greenlight.AI.asmdef
 ├── Gadgets/
+│   ├── Behaviours/
+│   ├── Data/
+│   ├── Interfaces/
+│   └── Runtime/
 │   └── Greenlight.Gadgets.asmdef
 ├── Economy/
 │   ├── Data/
@@ -267,13 +275,19 @@ Assets/_Greenlight/Scripts/
 │   └── Greenlight.Environment.asmdef
 ├── UI/
 │   ├── Merchant/
-│   ├── HUD/
 │   └── Greenlight.UI.asmdef
-└── Player/
-    └── Greenlight.Player.asmdef
+├── Player/
+│   └── Greenlight.Player.asmdef
+└── Editor/
+    └── Greenlight.Editor.asmdef
 ```
 
 Each `.asmdef` file controls compilation for all scripts in its folder and subfolders.
+
+---
+
+## 📚 Related Documentation
+- [Physics & Collision Architecture](physics-collision.md) - Standards for 2D physics, layers, and kinematic movement.
 
 ---
 

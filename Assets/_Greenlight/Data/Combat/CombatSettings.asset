@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de657e81f37ba094695ab8371ae9e37b, type: 3}
+  m_Name: CombatSettings
+  m_EditorClassIdentifier: Greenlight.Combat::Greenlight.Combat.CombatSettingsSO
+  _baseDamage: 1
+  _invulnerabilityDuration: 1
+  _knockbackForcePixels: 160
+  _knockbackDuration: 0.3
+  _flickerAlpha: 0.3
+  _flickerInterval: 0.1

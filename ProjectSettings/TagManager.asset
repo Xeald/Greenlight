@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -13,13 +14,13 @@ TagManager:
   - UI
   - 
   - Grappleable
-  - 
+  - Enemies
   - Player
   - 
+  - Base_Ground
+  - Environment
   - 
-  - 
-  - 
-  - 
+  - Pickups
   - 
   - 
   - 
@@ -40,6 +41,27 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Background
+    uniqueID: 720937195
+    locked: 0
+  - name: Ground_Base
+    uniqueID: 212270161
+    locked: 0
+  - name: Ground_Floor
+    uniqueID: 380974881
+    locked: 0
+  - name: Ground_Elevated
+    uniqueID: 3291034869
+    locked: 0
+  - name: Ground_Transition
+    uniqueID: 3442584295
+    locked: 0
+  - name: Props_Static
+    uniqueID: 99708903
+    locked: 0
+  - name: Enemies
+    uniqueID: 596427077
     locked: 0
   - name: Player
     uniqueID: 3117187475

@@ -2,9 +2,9 @@
     "name": "Greenlight.AI",
     "rootNamespace": "Greenlight.AI",
     "references": [
-        "Greenlight.Core",
-        "Greenlight.Combat",
-        "Greenlight.Gadgets"
+        "GUID:594699ff82e0c344fb8b2df5ca429134",
+        "GUID:d8f75c77bab1096489170b119932edff",
+        "GUID:f7f40b0be62d8cb458ee7a6d63a38089"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -37,4 +37,35 @@ Greenlight avoids "God Objects" and tight coupling by using a **ScriptableObject
 
 ---
 
+## 📂 Project Layout
+
+### 🏗️ Code & Data (`Assets/_Greenlight/`)
+- **`Scripts/`**: All C# logic, organized by assembly modules.
+- **`Data/`**: ScriptableObject assets (Game State, Flags, Definitions).
+- **`Prefabs/`**: Reusable GameObject templates for actors and gadgets.
+
+### 🎨 Art Assets (`Assets/Art/`)
+```
+Sprites/
+├── 🌍 Environment/          (Tiles & World-building)
+│   ├── 🏰 Tilesets/        (Primary grid-based sprites)
+│   │   ├── Overworld/
+│   │   └── Dungeons/
+│   └── 🪵 Decor/            (Non-grid props like grass tufts, rocks)
+├── 🤺 Actors/               (Characters & Entities)
+│   ├── 👤 Player/
+│   └── 👹 Enemies/
+├── 🔧 Gadgets/              (Your "Grammar" tools)
+│   ├── Hookshot/
+│   └── Lantern/
+├── 🏺 Interactives/         (Objects linked to Global Game State)
+│   ├── Destructibles/
+│   └── QuestItems/
+└── 🖥️ UI/                   (HUD, Icons, and Menus)
+    ├── 📋 Icons/
+    └── 🖼️ HUD/
+```
+
+---
+
 *Documentation maintained by the Greenlight Dev Team & AI Collaborators.*

@@ -123,19 +123,30 @@ If setting up a new project or scene, ensure these assets exist and are wired co
 
 ## 📂 File Structure
 
+### 🏗️ Code & Data
 ```
 Assets/_Greenlight/
 ├── Scripts/
+│   ├── Greenlight.Core.asmdef  # Core assembly definition
 │   ├── Core/
 │   │   ├── GlobalGameState/   # Logic for the "Brain"
 │   │   ├── Events/            # Logic for the "Nerves"
-│   │   ├── SceneManagement/   # Logic for Scene Reactivity
-│   │   └── Greenlight.Core.asmdef  # Core assembly definition
+│   │   └── SceneManagement/   # Logic for Scene Reactivity
 │   └── Editor/                # Custom Inspectors & Debug Tools
 └── Data/
     ├── GameState/             # The MasterGameState asset lives here
     ├── Flags/                 # Flag definitions live here
     └── Events/                # Event channels live here
+```
+
+### 🎨 Art Assets
+```
+Assets/Art/Sprites/
+└── 🌍 Environment/          (Tiles & World-building)
+    ├── 🏰 Tilesets/        (Primary grid-based sprites)
+    │   ├── Overworld/
+    │   └── Dungeons/
+    └── 🪵 Decor/            (Non-grid props like grass tufts, rocks)
 ```
 
 ---

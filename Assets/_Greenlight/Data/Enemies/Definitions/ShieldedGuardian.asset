@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ec802e247739c247a9e75fe12aa9a3e, type: 3}
+  m_Name: ShieldedGuardian
+  m_EditorClassIdentifier: Greenlight.AI::Greenlight.AI.EnemyDefinitionSO
+  _enemyName: Shielded Guardian
+  _description: Describe this enemy's role and behavior.
+  _maxHealth: 2
+  _attackDamage: 1
+  _resistances: 
+  _weaknesses: 
+  _moveSpeedPixels: 48
+  _chaseSpeedMultiplier: 1
+  _rotationSpeed: 2
+  _detectionRange: 3
+  _attackRange: 1.2
+  _attackCooldown: 3
+  _stunDuration: 0.5
+  _minLuniDrop: 15
+  _maxLuniDrop: 20
+  _behaviorPrefab: {fileID: 7191064906657081696, guid: f2da16ff2ac539f4a9ab2e6cf8c1940c, type: 3}
+  _deathVFXPrefab: {fileID: 0}

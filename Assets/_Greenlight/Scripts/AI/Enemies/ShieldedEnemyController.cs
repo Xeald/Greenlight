@@ -84,6 +84,8 @@ namespace Greenlight.AI
 
         private void Awake()
         {
+            base.Awake();
+
             // Auto-assign shield components
             if (_shieldSpriteRenderer == null)
                 _shieldSpriteRenderer = GetComponentInChildren<SpriteRenderer>();
@@ -104,6 +106,8 @@ namespace Greenlight.AI
 
         private void Start()
         {
+            base.Start();
+
             // Initialize shield in active position
             SetShieldActive(true);
 

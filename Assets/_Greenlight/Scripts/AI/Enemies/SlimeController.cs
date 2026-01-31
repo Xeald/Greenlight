@@ -69,6 +69,8 @@ namespace Greenlight.AI
 
         private void Awake()
         {
+            base.Awake();
+
             // Store original scale
             _originalScale = transform.localScale;
 
@@ -79,6 +81,8 @@ namespace Greenlight.AI
 
         private void Start()
         {
+            base.Start();
+
             // Override state machine with slime-specific states
             InitializeSlimeStates();
         }
