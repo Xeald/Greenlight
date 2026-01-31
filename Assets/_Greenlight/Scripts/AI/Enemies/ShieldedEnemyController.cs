@@ -82,7 +82,7 @@ namespace Greenlight.AI
         /// </summary>
         public Vector2 ShieldDirection => EnemyVisuals != null ? EnemyVisuals.CurrentFacingDirection : Vector2.right;
 
-        private void Awake()
+        protected override void Awake()
         {
             base.Awake();
 
@@ -104,7 +104,7 @@ namespace Greenlight.AI
             }
         }
 
-        private void Start()
+        protected override void Start()
         {
             base.Start();
 

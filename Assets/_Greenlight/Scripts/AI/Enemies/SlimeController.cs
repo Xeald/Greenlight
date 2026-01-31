@@ -67,7 +67,7 @@ namespace Greenlight.AI
         /// </summary>
         public Vector2 ChargeDirection => _chargeDirection;
 
-        private void Awake()
+        protected override void Awake()
         {
             base.Awake();
 
@@ -79,7 +79,7 @@ namespace Greenlight.AI
                 _audioSource = GetComponent<AudioSource>();
         }
 
-        private void Start()
+        protected override void Start()
         {
             base.Start();
 
@@ -87,8 +87,11 @@ namespace Greenlight.AI
             InitializeSlimeStates();
         }
 
-        private void Update()
+        protected override void Update()
         {
+            // Call base.Update to ensure state machine and basic movement logic runs
+            base.Update();
+
             // Handle charge movement if actively charging
             if (_isCharging)
             {
@@ -227,9 +230,12 @@ namespace Greenlight.AI
             // Continue moving in charge direction
             MoveInDirection(_chargeDirection);
 
-            // Check for collision or obstacles
-            // In a full implementation, this would handle bouncing off walls,
-            // hitting the player, etc.
+            // Check for collision - if we hit a wall, end the charge early
+            // We check a small distance ahead in the current direction
+            if (CheckCollision(_chargeDirection * 0.1f))
+            {
+                EndCharge();
+            }
         }
 
         #endregion

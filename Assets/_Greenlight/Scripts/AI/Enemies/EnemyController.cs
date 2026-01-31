@@ -1,6 +1,7 @@
 using UnityEngine;
 using Greenlight.Core;
 using Greenlight.Combat;
+using Greenlight.Core.Physics;
 
 namespace Greenlight.AI
 {
@@ -15,7 +16,7 @@ namespace Greenlight.AI
     /// - Event-driven communication with other systems
     /// </summary>
     [AddComponentMenu("Greenlight/AI/Enemy Controller")]
-    public class EnemyController : MonoBehaviour
+    public class EnemyController : MonoBehaviour, ICollisionChecker
     {
         [Header("Enemy Configuration")]
         [SerializeField, Tooltip("Enemy definition (Brain) - contains all data-driven parameters.")]
@@ -41,6 +42,9 @@ namespace Greenlight.AI
         [SerializeField, Tooltip("Rigidbody2D for movement (should be kinematic).")]
         private Rigidbody2D _rigidbody;
 
+        [SerializeField, Tooltip("Layers that block enemy movement (typically Environment).")]
+        private LayerMask _obstacleLayers;
+
         [Header("Game State Integration")]
         [SerializeField, Tooltip("Game state for world awareness.")]
         private GameStateSO _gameState;
@@ -56,6 +60,9 @@ namespace Greenlight.AI
         // Movement state
         private Vector2 _currentVelocity;
         private bool _movementPaused;
+
+        // Physics components
+        private BoxCollider2D _collider;
 
         /// <summary>
         /// Enemy definition containing all data-driven parameters.
@@ -118,7 +125,7 @@ namespace Greenlight.AI
             StartAI();
         }
 
-        private void Update()
+        protected virtual void Update()
         {
             // Update state machine
             _stateMachine?.Update();
@@ -127,7 +134,7 @@ namespace Greenlight.AI
             UpdateMovement();
         }
 
-        private void FixedUpdate()
+        protected virtual void FixedUpdate()
         {
             // Apply movement in FixedUpdate for consistent physics
             ApplyMovement();
@@ -154,6 +161,9 @@ namespace Greenlight.AI
 
             if (_rigidbody == null)
                 _rigidbody = GetComponent<Rigidbody2D>();
+
+            if (_collider == null)
+                _collider = GetComponent<BoxCollider2D>();
 
             // Ensure rigidbody is kinematic for manual control
             if (_rigidbody != null && _rigidbody.bodyType != RigidbodyType2D.Kinematic)
@@ -292,22 +302,82 @@ namespace Greenlight.AI
         }
 
         /// <summary>
+        /// Implements ICollisionChecker. Checks if movement is blocked by obstacles.
+        /// </summary>
+        /// <param name="delta">The movement vector to check.</param>
+        /// <returns>True if movement is blocked by a collision.</returns>
+        public bool CheckCollision(Vector2 delta)
+        {
+            if (_collider == null || _rigidbody == null) return false;
+
+            float distance = delta.magnitude;
+            if (distance < 0.0001f) return false;
+
+            Vector2 direction = delta.normalized;
+            Vector2 size = _collider.size * 0.95f; // Slightly smaller to avoid "snagging"
+            Vector2 origin = _rigidbody.position + _collider.offset;
+
+            // Small skin width to detect surfaces even if already touching
+            float skinWidth = 0.015f; // ~0.5 pixels at 32 PPU
+
+            // Cast a box to see if we hit anything on the obstacle layers
+            RaycastHit2D hit = Physics2D.BoxCast(
+                origin - direction * skinWidth,
+                size,
+                0f,
+                direction,
+                distance + skinWidth,
+                _obstacleLayers
+            );
+
+            if (hit.collider != null)
+            {
+                // Only block if moving towards the surface (dot product < 0)
+                float dot = Vector2.Dot(direction, hit.normal);
+                if (dot < -0.01f)
+                {
+                    return true; // Blocked by wall
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Apply movement using Rigidbody2D (called in FixedUpdate).
+        /// Uses collision checking to prevent walking through walls.
         /// </summary>
         private void ApplyMovement()
         {
             if (_rigidbody == null)
                 return;
 
-            // Apply velocity with pixel-perfect snapping
-            Vector2 currentPos = _rigidbody.position;
-            Vector2 newPos = currentPos + _currentVelocity * Time.fixedDeltaTime;
+            Vector2 moveDelta = _currentVelocity * Time.fixedDeltaTime;
+            Vector2 finalPos = _rigidbody.position;
+
+            // Split movement into X and Y for sliding collision response
+            // This allows the enemy to slide along walls smoothly
+            if (Mathf.Abs(moveDelta.x) > 0.0001f)
+            {
+                if (!CheckCollision(new Vector2(moveDelta.x, 0)))
+                {
+                    finalPos.x += moveDelta.x;
+                }
+            }
+
+            if (Mathf.Abs(moveDelta.y) > 0.0001f)
+            {
+                if (!CheckCollision(new Vector2(0, moveDelta.y)))
+                {
+                    finalPos.y += moveDelta.y;
+                }
+            }
 
             // Snap to pixel grid (32 PPU)
-            newPos.x = Mathf.Round(newPos.x * 32f) / 32f;
-            newPos.y = Mathf.Round(newPos.y * 32f) / 32f;
+            finalPos.x = Mathf.Round(finalPos.x * 32f) / 32f;
+            finalPos.y = Mathf.Round(finalPos.y * 32f) / 32f;
 
-            _rigidbody.MovePosition(newPos);
+            _rigidbody.MovePosition(finalPos);
         }
 
         #endregion
