@@ -11,7 +11,7 @@ namespace Greenlight.Core
     /// <summary>
     /// The Global Game State - the single source of truth for Greenlight's reactive world.
     /// Stores all world flags that drive dynamic scene composition, dialogue, and NPC behavior.
-    /// 
+    ///
     /// Design Philosophy:
     /// - Flags represent world events (e.g., "ForestShrine_Cleansed", "Village_BurntDown")
     /// - Any system can query state without tight coupling
@@ -75,7 +75,7 @@ namespace Greenlight.Core
         public void SetBool(string key, bool value, bool silent = false)
         {
             bool hadValue = _boolFlags.TryGetValue(key, out bool oldValue);
-            
+
             if (!hadValue || oldValue != value)
             {
                 _boolFlags[key] = value;
@@ -92,6 +92,18 @@ namespace Greenlight.Core
         /// Checks if a boolean flag exists (has been set at least once).
         /// </summary>
         public bool HasBool(string key) => _boolFlags.ContainsKey(key);
+
+        /// <summary>
+        /// Removes a boolean flag.
+        /// </summary>
+        public void RemoveBool(string key)
+        {
+            if (_boolFlags.ContainsKey(key))
+            {
+                _boolFlags.Remove(key);
+                SyncDebugView();
+            }
+        }
 
         #endregion
 
@@ -146,6 +158,18 @@ namespace Greenlight.Core
         /// </summary>
         public bool HasInt(string key) => _intFlags.ContainsKey(key);
 
+        /// <summary>
+        /// Removes an integer flag.
+        /// </summary>
+        public void RemoveInt(string key)
+        {
+            if (_intFlags.ContainsKey(key))
+            {
+                _intFlags.Remove(key);
+                SyncDebugView();
+            }
+        }
+
         #endregion
 
         #region String Flags
@@ -189,6 +213,18 @@ namespace Greenlight.Core
         /// Checks if a string flag exists.
         /// </summary>
         public bool HasString(string key) => _stringFlags.ContainsKey(key);
+
+        /// <summary>
+        /// Removes a string flag.
+        /// </summary>
+        public void RemoveString(string key)
+        {
+            if (_stringFlags.ContainsKey(key))
+            {
+                _stringFlags.Remove(key);
+                SyncDebugView();
+            }
+        }
 
         #endregion
 
@@ -303,12 +339,12 @@ namespace Greenlight.Core
         public void OnBeforeSerialize()
         {
             // Optional: Ensure debug lists are synced before serialization
-            // SyncDebugView(); 
+            // SyncDebugView();
         }
 
         public void OnAfterDeserialize()
         {
-            // After deserialization (e.g., when the asset is loaded), 
+            // After deserialization (e.g., when the asset is loaded),
             // we don't necessarily want to clear flags if they were set in edit mode,
             // but for runtime state, we typically start fresh.
         }

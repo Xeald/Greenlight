@@ -109,7 +109,7 @@ namespace Greenlight.Editor
             if (_showBoolFlags)
             {
                 EditorGUI.indentLevel++;
-                foreach (var kvp in _target.BoolFlags.OrderBy(x => x.Key))
+                foreach (var kvp in _target.BoolFlags.OrderBy(x => x.Key).ToList())
                 {
                     DrawBoolFlag(kvp.Key, kvp.Value);
                 }
@@ -131,7 +131,7 @@ namespace Greenlight.Editor
             if (_showIntFlags)
             {
                 EditorGUI.indentLevel++;
-                foreach (var kvp in _target.IntFlags.OrderBy(x => x.Key))
+                foreach (var kvp in _target.IntFlags.OrderBy(x => x.Key).ToList())
                 {
                     DrawIntFlag(kvp.Key, kvp.Value);
                 }
@@ -153,7 +153,7 @@ namespace Greenlight.Editor
             if (_showStringFlags)
             {
                 EditorGUI.indentLevel++;
-                foreach (var kvp in _target.StringFlags.OrderBy(x => x.Key))
+                foreach (var kvp in _target.StringFlags.OrderBy(x => x.Key).ToList())
                 {
                     DrawStringFlag(kvp.Key, kvp.Value);
                 }
@@ -183,8 +183,7 @@ namespace Greenlight.Editor
             GUI.color = Color.red;
             if (GUILayout.Button("X", GUILayout.Width(20)))
             {
-                // Note: Would need to add a RemoveFlag method to GameStateSO for full support
-                Debug.Log($"[GameStateEditor] Flag removal not implemented. Key: {key}");
+                _target.RemoveBool(key);
             }
 
             GUI.color = Color.white;
@@ -205,7 +204,7 @@ namespace Greenlight.Editor
             GUI.color = Color.red;
             if (GUILayout.Button("X", GUILayout.Width(20)))
             {
-                Debug.Log($"[GameStateEditor] Flag removal not implemented. Key: {key}");
+                _target.RemoveInt(key);
             }
 
             GUI.color = Color.white;
@@ -226,7 +225,7 @@ namespace Greenlight.Editor
             GUI.color = Color.red;
             if (GUILayout.Button("X", GUILayout.Width(20)))
             {
-                Debug.Log($"[GameStateEditor] Flag removal not implemented. Key: {key}");
+                _target.RemoveString(key);
             }
 
             GUI.color = Color.white;
