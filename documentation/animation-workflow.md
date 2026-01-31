@@ -1,8 +1,10 @@
 # Character Animation Workflow: 4-Direction System
 
-**Version 1.0** | *Phase 2 - The Vocabulary*
+**Version 1.1** | *Phase 2 - The Vocabulary*
 
 This document defines the **4-direction animation system** for Player, NPC, and Enemy characters in Greenlight. The system uses cardinal directions (Down, Up, Side) with directional state names, providing a consistent workflow from sprite creation to runtime animation control.
+
+**New in v1.1**: Universal Idle fallback system allows "Low-Fi" enemies with only one animation state.
 
 ---
 
@@ -32,7 +34,21 @@ All character types use consistent animation state names:
 | **NPC** | `IdleDown`, `IdleUp`, `IdleSide` | `MoveDown`, `MoveUp`, `MoveSide` |
 | **Enemy** | `IdleDown`, `IdleUp`, `IdleSide` | `ChaseDown`, `ChaseUp`, `ChaseSide` |
 
-**Legacy Support**: Enemies preserve existing single-direction states (`Attack`, `Telegraph`, `Stunned`, `Death`, `Recovery`, `Alert`) for backward compatibility.
+**Enemy Combat States**: `Attack`, `Telegraph`, `Stunned`, `Death`, `Recovery`, `Alert` (all optional).
+
+### Universal Idle Fallback System
+
+**Philosophy**: "Separate Visuals from Logic" means the AI and animation systems are decoupled.
+
+**Enemies Only Require `Idle`**:
+- If any animation state doesn't exist, the system automatically falls back to `Idle`
+- This allows "Low-Fi" enemies (bushes, rocks, simple creatures) to use one animation for all states
+- "High-Fi" enemies can override with specific animations as needed
+
+**Fallback Chain Example** (for Chase):
+1. Try `ChaseDown/Up/Side` (directional)
+2. Try `Chase` (single-direction legacy)
+3. **Fall back to `Idle`** (ultimate default)
 
 ### 3. Component Architecture
 
@@ -106,22 +122,56 @@ Create these clips with sprites:
 6. **Add Component**: `PlayerAnimationDriver`
 7. **Save Prefab**
 
-### Scenario B: Setting Up Enemy Animation
+### Scenario B: Setting Up "Low-Fi" Enemy Animation (Simple Enemies)
+
+**Use Case**: Bushes, rocks, simple creatures that use one animation for everything.
+
+#### Step 1: Create Single Animation Clip
+
+1. **Project Window**: `Assets/_Greenlight/Art/Animations/Bush/`
+2. **Create**: `Idle.anim` (your only animation clip)
+3. **Drag sprites**: Add your bush frames to the timeline
+4. **Loop**: Enable looping
+
+#### Step 2: Create Minimal Animator Controller
+
+1. **Right-click** → **Create → Animator Controller** → name `Bush.controller`
+2. **Animator Window**: Create ONE state:
+   - `Idle` (set as **default state**)
+3. **Assign Motion**: Drag `Idle.anim` to the `Idle` state
+4. **Done**: That's it! No other states needed.
+
+#### Step 3: Configure Enemy Prefab
+
+1. **Open**: Your enemy prefab (`Bush.prefab`)
+2. **Select**: `Visuals` child → **Add**: `Animator` → **Assign**: `Bush.controller`
+3. **Root**: Add `EnemyVisuals` component (auto-assigns references)
+4. **Optional**: Uncheck `Flip Sprite For Direction` if your enemy looks the same from all sides
+5. **Save Prefab**
+
+**Result**: The bush will use `Idle` for idle, chase, attack, telegraph, stunned, death, recovery, and alert states.
+
+---
+
+### Scenario C: Setting Up "High-Fi" Enemy Animation (Complex Enemies)
+
+**Use Case**: Enemies with unique animations for different combat states (Slime, ShieldedGuardian).
 
 #### Follow Steps 1-2 from Player setup, but create:
 
-| Clip Name | Loop | Notes |
-|-----------|------|-------|
-| `IdleDown.anim` | ✓ | Enemy idle states |
-| `IdleUp.anim`, `IdleSide.anim` | ✓ | |
-| `ChaseDown.anim` | ✓ | Enemy uses "Chase" not "Move" |
-| `ChaseUp.anim`, `ChaseSide.anim` | ✓ | |
-| `Attack.anim` | ✗ | Single-direction (for now) |
-| `Telegraph.anim` | ✗ | Attack warning |
-| `Stunned.anim` | ✓ | |
-| `Death.anim` | ✗ | |
-| `Recovery.anim` | ✗ | |
-| `Alert.anim` | ✗ | Detection reaction |
+| Clip Name | Loop | Required? | Fallback |
+|-----------|------|-----------|----------|
+| `Idle.anim` | ✓ | **YES** | N/A (ultimate fallback) |
+| `Chase.anim` | ✓ | No | Uses `Idle` |
+| `Attack.anim` | ✗ | No | Uses `Idle` |
+| `Telegraph.anim` | ✗ | No | Uses `Idle` |
+| `Stunned.anim` | ✓ | No | Uses `Idle` |
+| `Death.anim` | ✗ | No | Uses `Idle` |
+| `Recovery.anim` | ✗ | No | Uses `Idle` |
+| `Alert.anim` | ✗ | No | Uses `Idle` |
+
+**Optional Directional States** (for even more polish):
+- `IdleDown/Up/Side`, `ChaseDown/Up/Side`
 
 #### Enemy Prefab Configuration
 
@@ -130,7 +180,7 @@ Create these clips with sprites:
 3. **Root**: `EnemyVisuals` component already exists (no changes needed)
 4. **Save Prefab**
 
-### Scenario C: Setting Up NPC Animation
+### Scenario D: Setting Up NPC Animation
 
 **NPCs use same clips as Player** (Idle/Move pattern).
 
@@ -241,6 +291,39 @@ private void Update()
 }
 ```
 
+### Universal Idle Fallback Pattern (Enemies Only)
+
+**✅ Correct - Fall back to Idle for missing states**:
+
+```csharp
+public void PlayAttackAnimation()
+{
+    if (_animator == null)
+        return;
+
+    // Try to play Attack state, fall back to Idle if missing
+    if (HasAnimatorState(AttackHash))
+        _animator.Play(AttackHash);
+    else
+        PlayIdleAnimation(); // Ultimate fallback
+}
+```
+
+**Why This Matters**:
+- Allows "Low-Fi" enemies to function with only one animation
+- Decouples AI logic from visual complexity
+- Enables rapid prototyping (add animations incrementally)
+- No crashes or T-poses if designer forgets a state
+
+**❌ Wrong - Hard requirement for all states**:
+
+```csharp
+public void PlayAttackAnimation()
+{
+    _animator.Play(AttackHash); // Crashes if state doesn't exist!
+}
+```
+
 ---
 
 ## ⚙️ Administrator Configuration
@@ -258,11 +341,14 @@ private void Update()
 
 **Minimum states for each character type**:
 
-| Character | Required States |
-|-----------|-----------------|
-| **Player** | `IdleDown` (default), `IdleUp`, `IdleSide`, `MoveDown`, `MoveUp`, `MoveSide` |
-| **Enemy** | Above + `ChaseDown`, `ChaseUp`, `ChaseSide`, `Attack`, `Telegraph`, `Stunned`, `Death`, `Recovery`, `Alert` |
-| **NPC** | Same as Player |
+| Character | Required States | Optional States |
+|-----------|-----------------|-----------------|
+| **Player** | `IdleDown`, `IdleUp`, `IdleSide`, `MoveDown`, `MoveUp`, `MoveSide` | N/A |
+| **Enemy (Low-Fi)** | `Idle` **only** | All others (use `Idle` as fallback) |
+| **Enemy (High-Fi)** | `Idle` **only** | `Chase`, `Attack`, `Telegraph`, `Stunned`, `Death`, `Recovery`, `Alert` |
+| **NPC** | Same as Player | N/A |
+
+**Key Insight**: The `Idle` state is the only truly required state for enemies. All other states will gracefully fall back to `Idle` if missing.
 
 ### Debug Tools
 
@@ -301,8 +387,10 @@ private void OnDrawGizmosSelected()
 
 | Issue | Cause | Solution |
 |-------|-------|----------|
-| "State not found" warnings | Missing states in controller | Add all required states to Animator Controller |
+| Enemy becomes invisible when attacking | `EnemyTelegraph` scale bug | Fixed in v1.1 - components now look in children for sprites |
+| "State not found" warnings | Missing optional states | Warnings are informational - system falls back to `Idle` |
 | Animations don't change | Driver not added to prefab | Add animation driver component to character root |
+| Enemy uses same animation for everything | Only `Idle` state exists | **Intentional** - this is "Low-Fi" mode. Add more states if desired. |
 | Sprite doesn't flip | Flip settings disabled | Check `_flipSpriteOnDirection` in driver component |
 | Animations restart constantly | No state change check | Driver handles this - ensure using provided components |
 
@@ -366,3 +454,11 @@ Assets/_Greenlight/
 1. **Enemies**: Existing `PlayIdleAnimation()` calls work unchanged - they now automatically choose directional states
 2. **Backward Compatibility**: Legacy single states (`Idle`, `Chase`) still work as fallbacks
 3. **Graceful Upgrade**: Add directional states to controllers gradually - system warns but doesn't crash if missing
+
+**v1.1 Changes (Universal Idle Fallback)**:
+
+1. **Breaking Change**: None - fully backward compatible
+2. **New Feature**: All enemy animation methods now fall back to `Idle` if their specific state doesn't exist
+3. **Benefit**: Simple enemies (bushes, rocks) only need one `Idle` state in their Animator Controller
+4. **Bug Fix**: `EnemyTelegraph` now correctly finds `SpriteRenderer` on child objects (fixes invisibility bug)
+5. **Workflow Impact**: Designers can prototype enemies faster by creating only `Idle` animation initially

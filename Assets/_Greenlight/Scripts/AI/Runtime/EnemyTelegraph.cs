@@ -63,18 +63,20 @@ namespace Greenlight.AI
 
         private void Awake()
         {
-            // Auto-assign components if not set
+            // Auto-assign components if not set (look in children for 2D workflow)
             if (_targetSpriteRenderer == null)
-                _targetSpriteRenderer = GetComponent<SpriteRenderer>();
+                _targetSpriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
             if (_audioSource == null)
                 _audioSource = GetComponent<AudioSource>();
 
-            // Store original values
+            // Store original scale ALWAYS (prevents invisibility bug if sprite is on child)
+            _originalScale = transform.localScale;
+
+            // Store original colors if sprite renderers are found
             if (_targetSpriteRenderer != null)
             {
                 _originalColor = _targetSpriteRenderer.color;
-                _originalScale = transform.localScale;
             }
 
             if (_secondarySpriteRenderer != null)
@@ -301,9 +303,9 @@ namespace Greenlight.AI
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            // Auto-assign components
+            // Auto-assign components (look in children for 2D workflow)
             if (_targetSpriteRenderer == null)
-                _targetSpriteRenderer = GetComponent<SpriteRenderer>();
+                _targetSpriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
             if (_audioSource == null)
                 _audioSource = GetComponent<AudioSource>();

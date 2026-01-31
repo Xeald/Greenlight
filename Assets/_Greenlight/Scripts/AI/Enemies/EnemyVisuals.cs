@@ -36,6 +36,13 @@ namespace Greenlight.AI
         [SerializeField, Tooltip("Direction the sprite naturally faces (right = 1, left = -1).")]
         private int _naturalFacingDirection = 1;
 
+        [Header("Pixel Snapping")]
+        [SerializeField, Tooltip("Enable pixel-perfect snapping (32 PPU).")]
+        private bool _enablePixelSnapping = true;
+
+        private const float PIXELS_PER_UNIT = 32f;
+        private const float UNIT_PER_PIXEL = 1f / PIXELS_PER_UNIT;
+
         // State
         private Vector2 _currentFacingDirection = Vector2.right;
         private FacingCardinal _currentCardinal = FacingCardinal.Down;
@@ -85,9 +92,9 @@ namespace Greenlight.AI
 
         private void Awake()
         {
-            // Auto-assign components if not set
+            // Auto-assign components if not set (look in children for 2D workflow)
             if (_mainSpriteRenderer == null)
-                _mainSpriteRenderer = GetComponent<SpriteRenderer>();
+                _mainSpriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
             // Look for Animator in children first (preferred for 2D workflow), then on this object
             if (_animator == null)
@@ -119,6 +126,36 @@ namespace Greenlight.AI
             CacheAvailableStates();
         }
 
+        private void LateUpdate()
+        {
+            if (!_enablePixelSnapping || _visualTransform == null) return;
+
+            // Only snap if this is a child object. 
+            // If _visualTransform is the root, we'd be snapping physics again!
+            if (_visualTransform == transform)
+            {
+                return;
+            }
+
+            SnapToPixelGrid();
+        }
+
+        /// <summary>
+        /// Snaps the sprite transform to the nearest pixel position.
+        /// Rounds to 1/32 unit increments (32 PPU standard).
+        /// </summary>
+        private void SnapToPixelGrid()
+        {
+            // We snap the LOCAL position of the visual child relative to the smooth physics root.
+            // This prevents the "jitter" caused by snapping the physics body itself.
+            Vector3 pos = _visualTransform.localPosition;
+
+            pos.x = Mathf.Round(pos.x * PIXELS_PER_UNIT) * UNIT_PER_PIXEL;
+            pos.y = Mathf.Round(pos.y * PIXELS_PER_UNIT) * UNIT_PER_PIXEL;
+
+            _visualTransform.localPosition = pos;
+        }
+
         #region Animation Control
 
         /// <summary>
@@ -132,59 +169,120 @@ namespace Greenlight.AI
 
         /// <summary>
         /// Play chase/movement animation based on current facing direction.
+        /// Falls back to Idle if no Chase animation exists (for simple enemies).
         /// </summary>
         public void PlayChaseAnimation()
         {
-            int stateHash = GetDirectionalChaseHash(_currentCardinal);
-            PlayAnimationWithFallback(stateHash, ChaseHash, "Chase");
+            if (_animator == null)
+                return;
+
+            int directionalHash = GetDirectionalChaseHash(_currentCardinal);
+            
+            // Try directional chase first (ChaseDown, ChaseUp, ChaseSide)
+            if (HasAnimatorState(directionalHash))
+            {
+                _animator.Play(directionalHash);
+            }
+            // Fall back to legacy single-direction chase
+            else if (HasAnimatorState(ChaseHash))
+            {
+                _animator.Play(ChaseHash);
+            }
+            // Ultimate fallback: Use Idle (for simple enemies like bushes)
+            else
+            {
+                PlayIdleAnimation();
+            }
         }
 
         /// <summary>
         /// Play attack animation.
+        /// Falls back to Idle if Attack state doesn't exist (for simple enemies).
         /// </summary>
         public void PlayAttackAnimation()
         {
-            PlayAnimation(AttackHash);
+            if (_animator == null)
+                return;
+
+            if (HasAnimatorState(AttackHash))
+                _animator.Play(AttackHash);
+            else
+                PlayIdleAnimation();
         }
 
         /// <summary>
         /// Play telegraph animation (warning before attack).
+        /// Falls back to Idle if Telegraph state doesn't exist (for simple enemies).
         /// </summary>
         public void PlayTelegraphAnimation()
         {
-            PlayAnimation(TelegraphHash);
+            if (_animator == null)
+                return;
+
+            if (HasAnimatorState(TelegraphHash))
+                _animator.Play(TelegraphHash);
+            else
+                PlayIdleAnimation();
         }
 
         /// <summary>
         /// Play stunned animation.
+        /// Falls back to Idle if Stunned state doesn't exist (for simple enemies).
         /// </summary>
         public void PlayStunnedAnimation()
         {
-            PlayAnimation(StunnedHash);
+            if (_animator == null)
+                return;
+
+            if (HasAnimatorState(StunnedHash))
+                _animator.Play(StunnedHash);
+            else
+                PlayIdleAnimation();
         }
 
         /// <summary>
         /// Play death animation.
+        /// Falls back to Idle if Death state doesn't exist (for simple enemies).
         /// </summary>
         public void PlayDeathAnimation()
         {
-            PlayAnimation(DeathHash);
+            if (_animator == null)
+                return;
+
+            if (HasAnimatorState(DeathHash))
+                _animator.Play(DeathHash);
+            else
+                PlayIdleAnimation();
         }
 
         /// <summary>
         /// Play recovery animation (after attack or stun).
+        /// Falls back to Idle if Recovery state doesn't exist (for simple enemies).
         /// </summary>
         public void PlayRecoveryAnimation()
         {
-            PlayAnimation(RecoveryHash);
+            if (_animator == null)
+                return;
+
+            if (HasAnimatorState(RecoveryHash))
+                _animator.Play(RecoveryHash);
+            else
+                PlayIdleAnimation();
         }
 
         /// <summary>
         /// Play alert animation (when detecting player).
+        /// Falls back to Idle if Alert state doesn't exist (for simple enemies).
         /// </summary>
         public void PlayAlertAnimation()
         {
-            PlayAnimation(AlertHash);
+            if (_animator == null)
+                return;
+
+            if (HasAnimatorState(AlertHash))
+                _animator.Play(AlertHash);
+            else
+                PlayIdleAnimation();
         }
 
         /// <summary>
@@ -554,9 +652,9 @@ namespace Greenlight.AI
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            // Auto-assign components
+            // Auto-assign components (look in children for 2D workflow)
             if (_mainSpriteRenderer == null)
-                _mainSpriteRenderer = GetComponent<SpriteRenderer>();
+                _mainSpriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
             // Look for Animator in children first (preferred for 2D workflow), then on this object
             if (_animator == null)

@@ -373,10 +373,6 @@ namespace Greenlight.AI
                 }
             }
 
-            // Snap to pixel grid (32 PPU)
-            finalPos.x = Mathf.Round(finalPos.x * 32f) / 32f;
-            finalPos.y = Mathf.Round(finalPos.y * 32f) / 32f;
-
             _rigidbody.MovePosition(finalPos);
         }
 

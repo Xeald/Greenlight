@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5943887550270691986}
   - component: {fileID: 2847913938236766279}
+  - component: {fileID: 7826324268720323549}
   m_Layer: 8
   m_Name: Visuals
   m_TagString: Untagged
@@ -91,6 +92,28 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!95 &7826324268720323549
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3167405934896159416}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 9ad8910edb880c94ca270258fcdef622, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &7191064906657081696
 GameObject:
   m_ObjectHideFlags: 0
@@ -218,9 +241,10 @@ MonoBehaviour:
   _mainSpriteRenderer: {fileID: 2847913938236766279}
   _weaponSpriteRenderer: {fileID: 0}
   _visualTransform: {fileID: 5943887550270691986}
-  _animator: {fileID: 0}
+  _animator: {fileID: 7826324268720323549}
   _flipSpriteForDirection: 1
   _naturalFacingDirection: 1
+  _enablePixelSnapping: 1
 --- !u!114 &5243323363973104350
 MonoBehaviour:
   m_ObjectHideFlags: 0
