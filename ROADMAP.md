@@ -113,6 +113,7 @@ It is grounded in two truths:
 
 - **Acceptance Criteria**
   - **First Verb is Grapple** (finalized).
+  - Player movement must be restricted to **8 directions** (Cardinal + Intercardinal) to ensure parity between PC (WASD) and Android (Joystick).
   - Movement feels **snappy‑but‑smooth** (smooth sub‑pixel physics + strong deceleration / “high friction”).
   - Grapple shows the hook extension *before* movement, and respects collisions during pull.
   - Enemy encounter produces readable feedback (telegraph + hitstop/screen shake where applicable).
@@ -222,7 +223,9 @@ It is grounded in two truths:
 
 ---
 
-## Open Decisions (Answering These Will Sharpen the Roadmap)
+## Open Decisions
 1. **Vertical slice theme**: what is the first “region fantasy” (forest shrine, ruined village edge, swamp, etc.)?
 2. **Target platforms for the next 2 milestones**: PC/controller first, or do we prioritize touch parity immediately?
-3. **First verb commitment (Prerequisite for Milestone 0)**: evaluated **Grapple** vs **Gust Jar** vs **Magnetic Wand** → **Final decision: Grapple**.
+
+## Closed Decisions
+3. **First verb commitment (CLOSED)**: evaluated **Grapple** vs **Gust Jar** vs **Magnetic Wand** → **Final decision: Grapple** (official first grammar gadget).

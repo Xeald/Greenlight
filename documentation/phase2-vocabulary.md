@@ -53,8 +53,13 @@ The grappling hook demonstrates the "Lock and Key" philosophy and is the finaliz
 The first gadget evolution adds a new verb to the existing tool:
 - **Flag Gate**: `Gadget_Grapple_WhaleHook` (bool)
 - **Context-Sensitive Behavior**:
-  - **Default**: Hitting `IPullable` pulls the target toward the player.
-  - **With Whale Hook enabled**: Hitting a surface tagged **`PullSurface`** (e.g., Wooden Wall / Tree) pulls the **player** toward the target.
+  - **Default**:
+    - Pulls **small items** and **currency (Luni)** toward the player
+    - Pulls / stuns **light enemies** toward the player (via `IPullable` integration)
+  - **Evolution (Whale Hook)**:
+    - If `Gadget_Grapple_WhaleHook` is active in `GameStateSO` **AND** the hook hits a surface tagged **`PullSurface`**
+      - (Wooden Walls, Trees, specific Stone Blocks)
+    - Then the **player** is pulled to the target instead
   - GrapplePoints remain traversal anchors and always pull the player to the landing target.
 
 ---

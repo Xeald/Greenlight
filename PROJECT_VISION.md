@@ -58,7 +58,7 @@ Greenlight’s movement targets a **High‑Fidelity Retro** feel: smooth sub‑p
 
 - **Smooth Simulation**: Movement uses **smooth sub‑pixel physics** (Kinematic `Rigidbody2D` movement) rather than a strict “locked-to-grid” 16-bit feel.
 - **Snappy‑But‑Smooth**: The controller emphasizes **high friction / strong deceleration** so stops feel immediate without looking jittery.
-- **Visual Clarity at 32 PPU**: Even with fluid movement, **all SpriteRenderers snap to the pixel grid in `LateUpdate`** (visual child only). Physics remains smooth; visuals remain crisp.
+- **Visual Clarity at 32 PPU**: Even with fluid movement, **all SpriteRenderers snap to the pixel grid in `LateUpdate`** (visual child only). This can be implemented via a dedicated snapping script (e.g., `PlayerVisuals` / `EnemyVisuals`) and/or the Unity Pixel Perfect pipeline. Physics remains smooth; visuals remain crisp.
 
 ### Pixel Density & Resolution
 

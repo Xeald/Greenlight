@@ -128,6 +128,16 @@ if (merchantPanelType != null)
 }
 ```
 
+**✅ Also Correct (Preferred Where Possible) — UI De‑coupling via Events / Read‑Only Interfaces**
+
+To keep the assembly graph a strict DAG:
+- **Economy** and **Combat** must remain **UI-agnostic** (zero compile-time dependencies on `Greenlight.UI`).
+- UI updates (wallet displays, health displays, merchant panels) should be driven by:
+  - **Event Bus**: UI listens to `GameEventSO` / typed event channels raised by gameplay systems, and/or
+  - **Read-only interfaces in `Greenlight.Core`**: UI queries display-safe data without owning game logic.
+
+**Rule of thumb**: Gameplay must function with no UI scene objects present; UI is a subscriber, not a dependency.
+
 ---
 
 ## 💻 Coding Standards
