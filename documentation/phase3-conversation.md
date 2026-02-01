@@ -87,7 +87,7 @@ Every enemy attack is a **statement** that requires a **response** from the play
    - Add `EnemyController` (or specific type like `SlimeController`)
    - Add `HealthComponent`, `KnockbackReceiver`, `InvincibilityController`
    - Add `EnemyVisuals`, `EnemyTelegraph` components
-   - Configure Rigidbody2D as **Kinematic** for pixel-perfect movement
+   - Configure Rigidbody2D as **Kinematic** for **snappy‑but‑smooth** movement (smooth physics + pixel-snapped visuals)
    - Assign all ScriptableObject references in Inspector
 
 ### Setting Up Combat Feedback
@@ -311,20 +311,25 @@ private void OnButtonClicked()
 }
 ```
 
-### Pixel-Perfect Movement (32 PPU Standard)
+### High‑Fidelity Retro Movement (Smooth Physics + Pixel‑Perfect Visuals)
 
 ```csharp
-// ✅ Correct: All movement respects pixel grid
-private void ApplyMovement()
+// ✅ Correct pattern:
+// - Physics stays smooth (sub-pixel) via Rigidbody2D.MovePosition
+// - Sprite visuals snap to 32 PPU grid in LateUpdate (visual child only)
+private void FixedUpdate()
 {
     Vector2 currentPos = _rigidbody.position;
     Vector2 newPos = currentPos + _velocity * Time.fixedDeltaTime;
-    
-    // Snap to pixel grid (32 PPU)
-    newPos.x = Mathf.Round(newPos.x * 32f) / 32f;
-    newPos.y = Mathf.Round(newPos.y * 32f) / 32f;
-    
-    _rigidbody.MovePosition(newPos);
+    _rigidbody.MovePosition(newPos); // Do NOT snap physics position
+}
+
+private void LateUpdate()
+{
+    Vector3 pos = _spriteTransform.position;
+    pos.x = Mathf.Round(pos.x * 32f) / 32f;
+    pos.y = Mathf.Round(pos.y * 32f) / 32f;
+    _spriteTransform.position = pos;
 }
 ```
 

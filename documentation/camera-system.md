@@ -2,7 +2,7 @@
 
 **Version 1.0** | *Phase 2 Architecture*
 
-The Camera System in Greenlight is built on **Cinemachine 3** and the **URP 2D Pixel Perfect** pipeline. It is responsible for maintaining the "Retro-Modern" aesthetic (32 PPU, 640x360) while providing smooth, responsive tracking.
+The Camera System in Greenlight is built on **Cinemachine 3** and the **URP 2D Pixel Perfect** pipeline. It is responsible for maintaining the **High‑Fidelity Retro** aesthetic (32 PPU, 640x360): smooth tracking with pixel-perfect output.
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Version 1.0** | *Project Architecture Standard*
 
-This document defines the rigid standards for handling 2D physics, collisions, and movement in Greenlight. Our goal is to achieve a **"Retro-Modern"** feel—pixel-perfect precision (Retro) with smooth, bug-free implementation (Modern).
+This document defines the rigid standards for handling 2D physics, collisions, and movement in Greenlight. Our goal is to achieve a **"High-Fidelity Retro"** feel—smooth sub-pixel simulation (High-Fidelity) with crisp, readable pixel art output (Retro).
 
 ---
 
@@ -10,8 +10,9 @@ This document defines the rigid standards for handling 2D physics, collisions, a
 
 ### 1. The "Kinematic Control" Philosophy
 Unlike standard Unity games that use `Dynamic` Rigidbodies for physics simulation, Greenlight uses **Kinematic Rigidbodies** for the Player and Enemies.
-- **Why?** Dynamic bodies "slide," "bounce," and "drift." We want characters to stop *exactly* where the code says.
-- **How?** We use `Rigidbody2D.MovePosition` to move, but we must **manually check for collisions** before moving.
+- **Why?** Dynamic bodies "slide," "bounce," and "drift." We want **snappy-but-smooth** movement: responsive stops without chaotic physics.
+- **How?** We use `Rigidbody2D.MovePosition` to move, and we **manually check for collisions** before moving.
+- **Critical Detail**: Physics movement is allowed to be **smooth (sub-pixel)**. Pixel clarity is enforced by **snapping SpriteRenderers in `LateUpdate`** (visual child only).
 
 ### 2. The Collision Layers
 The world is divided into strict layers to prevent logic errors (e.g., enemies blocking the player, or projectiles hitting the UI).
@@ -62,8 +63,8 @@ if (!Physics2D.BoxCast(pos, size * 0.95f, 0, new Vector2(0, moveDelta.y), ...))
     // Move Y
 }
 
-// 4. Snap to Pixel Grid (32 PPU)
-finalPos = RoundToPixel(finalPos);
+// 4. Move (smooth sub-pixel physics)
+// IMPORTANT: Do NOT snap the Rigidbody position. Snap visuals in LateUpdate instead.
 _rb.MovePosition(finalPos);
 ```
 
@@ -92,11 +93,20 @@ If a character is stuck or walking through walls:
 Do not rely on `OnCollisionEnter2D` to stop the player. Since we are Kinematic, we must **pre-emptively** stop using Raycasts/BoxCasts.
 
 ### 2. Pixel Snapping
-All final positions must be rounded to the nearest 1/32 unit to prevent visual jitter.
+All **SpriteRenderer visuals** must be rounded to the nearest 1/32 unit to prevent shimmer, while physics remains smooth.
 ```csharp
 // Standard Snapping Formula
 float pixelUnit = 1f / 32f;
 float snappedX = Mathf.Round(rawX / pixelUnit) * pixelUnit;
+```
+
+**Standard Implementation Pattern (Visual Child Only):**
+```csharp
+// In PlayerVisuals / EnemyVisuals (LateUpdate)
+var pos = _spriteTransform.position;
+pos.x = Mathf.Round(pos.x * 32f) / 32f;
+pos.y = Mathf.Round(pos.y * 32f) / 32f;
+_spriteTransform.position = pos;
 ```
 
 ### 3. LayerMask usage

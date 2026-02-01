@@ -26,9 +26,11 @@ Progression in Greenlight is defined by *tools, skills, and story*—not arbitra
 **Progression Systems:**
 - **Health & Mana**: Players increase maximum health by finding or purchasing **Red Hearts**, and maximum mana via **Blue Hearts**. These are finite, placed rewards—not random drops.
 - **No Levels, No XP**: There is no experience point system. The player does not "level up" in the traditional RPG sense.
-- **Story-Driven Evolution**: The player begins with base stats. These may evolve at specific narrative beats—a transformative story event might permanently enhance the player's abilities as a meaningful milestone, not a grind reward.
-- **Combat Prowess**: Your ability to face harder enemies comes from your equipment, your gadgets, and the *skills you develop as a player*—pattern recognition, timing, tool mastery.
-- **Economy**: Enemies drop **Luni**, the in-game currency, used to purchase items, upgrades, and hearts from merchants.
+- **Gadget Evolution**: Progression is primarily driven by **new verbs for existing tools** (e.g., upgrading a gadget so it can interact with new materials or solve new combat problems). This is horizontal “vocabulary growth,” not a power treadmill.
+- **Horizontal Equipment**: Weapons and equipment are defined by **unique mechanical utility** (stun behavior, shield-breaking, pull synergy, elemental interactions, timing windows), not incremental stat boosts.
+- **Obfuscated Stats (No Raw Numbers)**: Weapons/equipment do **not** display raw numerical stats (Power/Speed/etc.). Utility is communicated through **names, lore, and descriptive effects** (e.g., “Shield‑Breaker”, “High Stun”, “Armor Piercing”, “Long Recovery Punish”).
+- **Combat Prowess**: Your ability to face harder enemies comes from your gadgets, your equipment utility, and the *skills you develop as a player*—pattern recognition, timing, tool mastery.
+- **Economy**: Enemies drop **Luni**, the in-game currency, used to purchase items and upgrades (including finite Hearts) from merchants.
 
 ### 3. ⚔️ **Combat as Conversation**
 
@@ -49,6 +51,14 @@ The satisfaction of solving a Greenlight puzzle should echo in memory. Environme
 ## The Look & Feel
 
 Greenlight's visual identity is a love letter to the 16-bit era, evolved through modern techniques into something that feels both nostalgic and strikingly contemporary.
+
+### Movement & Feel (High‑Fidelity Retro)
+
+Greenlight’s movement targets a **High‑Fidelity Retro** feel: smooth sub‑pixel motion with crisp stopping and readable intent.
+
+- **Smooth Simulation**: Movement uses **smooth sub‑pixel physics** (Kinematic `Rigidbody2D` movement) rather than a strict “locked-to-grid” 16-bit feel.
+- **Snappy‑But‑Smooth**: The controller emphasizes **high friction / strong deceleration** so stops feel immediate without looking jittery.
+- **Visual Clarity at 32 PPU**: Even with fluid movement, **all SpriteRenderers snap to the pixel grid in `LateUpdate`** (visual child only). Physics remains smooth; visuals remain crisp.
 
 ### Pixel Density & Resolution
 
@@ -131,7 +141,7 @@ Mobile is not an afterthought—it is a **first-class citizen**.
 - **Virtual Joystick**: Clean, customizable on-screen joystick for movement. Semi-transparent, repositionable based on player preference.
 - **Contextual Touch Actions**: Interact buttons appear only when relevant. Attack and gadget buttons are large, thumb-friendly, and positioned for natural grip.
 - **No Precision Penalties**: If a puzzle or combat encounter is frustrating on touch, it needs redesign. Touch players should never feel handicapped.
-- **Seamless Cross-Play**: Cloud save support allowing players to continue their journey between PC and mobile.
+- **Saves (Prototype Standard)**: Local save/load must work reliably on Android. (Cloud save is a future enhancement, not a prototype dependency.)
 - **Battery & Performance Conscious**: Optimized rendering and input handling for mobile hardware. No excessive battery drain or thermal throttling.
 
 ---

@@ -8,7 +8,7 @@ The "Vocabulary" is the second foundational phase of Greenlight. It implements t
 
 ## 🧩 Core Concepts
 
-### 1. Responsive Character Controller
+### 1. Responsive Character Controller (High‑Fidelity Retro)
 
 The player controller is built with three distinct components following Separation of Concerns:
 
@@ -17,10 +17,11 @@ The player controller is built with three distinct components following Separati
 - **PlayerVisuals**: Manages sprite rendering and pixel-perfect snapping (32 PPU)
 
 **Key Design Decisions:**
-- Kinematic Rigidbody2D prevents "slippery" modern physics feel
+- Kinematic Rigidbody2D enables **smooth sub‑pixel** movement with deterministic collision handling
 - Movement expressed in pixels/second, converted to units automatically
-- Pixel snapping happens in `LateUpdate` after all physics
+- Pixel snapping happens in `LateUpdate` on **SpriteRenderer visuals** (visual child), after all physics
 - Input locking integrated with Nervous System via `StateResponder`
+- Movement intent is restricted to **8 directions** (Cardinal + Intercardinal) for parity between WASD and touch
 
 ### 2. Modular Gadget Framework (Data + Behavior Pairs)
 
@@ -43,10 +44,18 @@ Gadgets follow a strict **Brain + Body** separation:
 
 ### 3. The Grappling Hook (First Verb)
 
-The grappling hook demonstrates the "Lock and Key" philosophy:
+The grappling hook demonstrates the "Lock and Key" philosophy and is the finalized **First Verb**:
 - **Traversal**: Pull player to GrapplePoints (environment markers)
-- **Combat**: Pull IPullable enemies toward player
-- **Three-Phase Timing**: Hook extends visually BEFORE player moves
+- **Combat/Utility**: Pull IPullable items/enemies toward the player
+- **Three-Phase Timing**: Hook extends visually BEFORE any pull begins
+
+#### Gadget Evolution: Whale Hook (Upgrade)
+The first gadget evolution adds a new verb to the existing tool:
+- **Flag Gate**: `Gadget_Grapple_WhaleHook` (bool)
+- **Context-Sensitive Behavior**:
+  - **Default**: Hitting `IPullable` pulls the target toward the player.
+  - **With Whale Hook enabled**: Hitting a surface tagged **`PullSurface`** (e.g., Wooden Wall / Tree) pulls the **player** toward the target.
+  - GrapplePoints remain traversal anchors and always pull the player to the landing target.
 
 ---
 
@@ -68,7 +77,7 @@ The grappling hook demonstrates the "Lock and Key" philosophy:
      - Add **PlayerVisuals** component
      - Add **PlayerController** component
      - Add **GadgetUser** component
-     - Add **Rigidbody2D** (Set **Body Type** to `Kinematic`, **Interpolation** to `None` for retro feel)
+   - Add **Rigidbody2D** (Set **Body Type** to `Kinematic`, **Interpolation** to `Interpolate` for smooth sub‑pixel motion)
      - Add **PlayerInput** component
 
 3. **Configure Components**:
@@ -242,11 +251,12 @@ public float MoveSpeedPixels = 96f; // 3 tiles/sec at 32 PPU
 // Convert to units for physics
 public float MoveSpeedUnits => MoveSpeedPixels / 32f; // 3.0 units/sec
 
-// Snap positions to pixel grid
-Vector3 pos = transform.position;
+// Snap ONLY SpriteRenderer visuals to pixel grid (32 PPU)
+// (Do not snap Rigidbody physics position.)
+Vector3 pos = spriteTransform.position;
 pos.x = Mathf.Round(pos.x * 32f) / 32f;
 pos.y = Mathf.Round(pos.y * 32f) / 32f;
-transform.position = pos;
+spriteTransform.position = pos;
 ```
 
 ### 4. Creating Movement-Locking Gadgets

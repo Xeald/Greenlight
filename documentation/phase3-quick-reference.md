@@ -187,20 +187,24 @@ public bool CanPlayerAfford(int cost)
 }
 ```
 
-### Pixel-Perfect Movement (32 PPU)
+### High‑Fidelity Retro Movement (Smooth Physics + Pixel‑Perfect Visuals)
 ```csharp
-// ✅ Proper pixel-perfect movement
-private void ApplyMovement()
+// ✅ Correct pattern:
+// - Physics stays smooth (sub-pixel) via Rigidbody2D.MovePosition
+// - Sprite visuals snap to 32 PPU grid in LateUpdate (visual child only)
+private void FixedUpdate()
 {
     Vector2 currentPos = _rigidbody.position;
-    Vector2 movement = _velocity * Time.fixedDeltaTime;
-    Vector2 newPos = currentPos + movement;
-    
-    // Snap to pixel grid (32 PPU)
-    newPos.x = Mathf.Round(newPos.x * 32f) / 32f;
-    newPos.y = Mathf.Round(newPos.y * 32f) / 32f;
-    
-    _rigidbody.MovePosition(newPos);
+    Vector2 newPos = currentPos + _velocity * Time.fixedDeltaTime;
+    _rigidbody.MovePosition(newPos); // Do NOT snap physics position
+}
+
+private void LateUpdate()
+{
+    Vector3 pos = _spriteTransform.position;
+    pos.x = Mathf.Round(pos.x * 32f) / 32f;
+    pos.y = Mathf.Round(pos.y * 32f) / 32f;
+    _spriteTransform.position = pos;
 }
 
 // ✅ Convert pixels to Unity units
