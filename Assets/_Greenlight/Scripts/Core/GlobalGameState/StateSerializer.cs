@@ -16,7 +16,7 @@ namespace Greenlight.Core
     {
         private static readonly JsonSerializerSettings _jsonSettings = new()
         {
-            Formatting = Formatting.Indented,
+            Formatting = Formatting.None,
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
             NullValueHandling = NullValueHandling.Ignore
         };
